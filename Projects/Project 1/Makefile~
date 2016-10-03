@@ -1,0 +1,10 @@
+# Debugging flag(s)
+DEBUG = -g
+# Flags for compiling classes.
+CFLAGS = -ansi -Wall -c -w $(DEBUG)
+# Flags for linking
+LFLAGS = -ansi -Wall $(DEBUG)
+# Driver C++ file
+DRIVERC = driver.cpp
+# Driver object file
+DRIVERO = driver.o
