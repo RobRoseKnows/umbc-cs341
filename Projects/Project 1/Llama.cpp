@@ -33,11 +33,26 @@ Llama::Llama(const Llama& other) {
 }
 
 Llama::~Llama() {
+    LlamaNode* delNode = m_firstNode;
+    LlamaNode* nextNode = delNode->m_next;
 
+    while(nextNode != NULL) {
+        for(int i = 0; i < LN_SIZE; i++) {
+            delete delNode->arr[i];
+            delNode->arr[i] = NULL;
+        }
+
+        delete delNode;
+        delNode = nextNode;
+        nextNode = delNode->m_next;
+    }
+
+    m_firstNode = NULL;
+    m_dataStart = NULL;
 }
 
 int Llama::size() {
-
+    return m_count;
 }
 
 void Llama::dump() {
@@ -76,6 +91,10 @@ T Llama::pop() {
     if(m_count == 0) {
         throw LlamaUnderflow("Cannot pop 0 items.");
     }
+
+    T item = m_dataStart[(m_count % LN_SIZE) - 1];
+    m_count--;
+    return item;
 }
 
 void Llama::dup() {
@@ -121,6 +140,13 @@ T Llama::peek(int offset) const {
     }
     // Which stack we have to check
     int stackOn = offset / LN_SIZE;
+    LlamaNode* checkNode = m_dataStart;
 
+    for(int i = 0; i < stackOn; i++) {
+        checkNode = checkNode->m_next;
+    }
+
+    return checkNode->arr[offset % LN_SIZE];
 }
+
 #endif

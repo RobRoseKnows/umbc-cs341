@@ -60,7 +60,7 @@ class Llama {
 
    // overloaded assignment operator
    //
-   const Llama<T,LN_SIZE>& operator=(const Llama<T,LN_SIZE>& rhs) ;
+   const Llama& operator=(const Llama& rhs) ;
 
 
    //
