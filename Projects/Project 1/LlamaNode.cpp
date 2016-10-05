@@ -1,8 +1,6 @@
 #ifndef _LLAMANODE_CPP_
 #define _LLAMANODE_CPP_
 
-#define T string
-#define LN_SIZE 4
 
 /* File: LlamaNode.cpp
 
@@ -26,34 +24,33 @@ using namespace std ;
 
 // Static variables
 
-// TODO: Re-add templated code
-//template <class T, int LN_SIZE>
-int LlamaNode::newCount = 0 ;
+template <class T, int LN_SIZE>
+int LlamaNode<T,LN_SIZE>::newCount = 0 ;
 
 
-//template <class T, int LN_SIZE>
-int LlamaNode::deleteCount = 0 ;
+template <class T, int LN_SIZE>
+int LlamaNode<T,LN_SIZE>::deleteCount = 0 ;
 
 
-//template <class T, int LN_SIZE>
-LlamaNode::LlamaNode() {
+template <class T, int LN_SIZE>
+LlamaNode<T,LN_SIZE>::LlamaNode() {
    m_next = NULL ; 
    newCount++ ; 
 }
 
 
-//template <class T, int LN_SIZE>
-LlamaNode::~LlamaNode() {
+template <class T, int LN_SIZE>
+LlamaNode<T,LN_SIZE>::~LlamaNode() { 
    m_next = NULL ; 
    deleteCount++ ; 
 }
 
 
-//template <class T, int LN_SIZE>
-void LlamaNode::report() {
+template <class T, int LN_SIZE>
+void LlamaNode<T,LN_SIZE>::report() {
 
-   cerr << "# of nodes created = " << LlamaNode::newCount << endl ;
-   cerr << "# of nodes destroyed = " << LlamaNode::deleteCount << endl ;
+   cerr << "# of nodes created = " << LlamaNode<T,LN_SIZE>::newCount << endl ;
+   cerr << "# of nodes destroyed = " << LlamaNode<T,LN_SIZE>::deleteCount << endl ;
 
 }
 

@@ -1,7 +1,5 @@
 #ifndef _LLAMA_H_
 #define _LLAMA_H_
-#define T string
-#define LN_SIZE 4
 
 /* File: Llama.h
 
@@ -32,9 +30,7 @@ class LlamaUnderflow : public std::out_of_range {
 
 } ;
 
-
-// TODO: Readd templated code
-//template <class T, int LN_SIZE>
+template <class T, int LN_SIZE>
 class Llama {
 
    public:
@@ -67,15 +63,16 @@ class Llama {
    // Add your public member functions & public data mebers here:
    //
 
+   int capacity();
 
    private:
 
    // This uses an inverted stack. The "dataStart" pointer refers to
    // the first node with data in the series
-   LlamaNode * m_dataStart;
+   LlamaNode<T,LN_SIZE> * m_dataStart;
    // The "firstNode" pointer refers to the first node used in the
    // program, even if it's empty.
-   LlamaNode * m_firstNode;
+   LlamaNode<T,LN_SIZE> * m_firstNode;
 
    // The number of items in the node.
    int m_count ;
@@ -90,7 +87,7 @@ class Llama {
 } ;
 
 
-//#include "Llama.cpp"
+#include "Llama.cpp"
 
 
 #endif

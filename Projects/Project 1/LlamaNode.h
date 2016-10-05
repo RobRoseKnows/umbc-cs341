@@ -1,9 +1,6 @@
 #ifndef _LLAMANODE_H_
 #define _LLAMANODE_H_
 
-#define T string
-#define LN_SIZE 4
-
 
 /* File: LlamaNode.h
 
@@ -24,14 +21,14 @@
 using namespace std ;
 
 
-//template <class T, int LN_SIZE>   // forward class declaration
+template <class T, int LN_SIZE>   // forward class declaration
 class Llama ;
 
 
-//template <class T, int LN_SIZE>
+template <class T, int LN_SIZE>
 class LlamaNode {
 
-   friend class Llama ;
+   friend class Llama<T,LN_SIZE> ;
 
    public:
 
@@ -51,7 +48,7 @@ class LlamaNode {
 
 } ;
 
-// TODO: Re-add templated code
-//#include "LlamaNode.cpp"
+
+#include "LlamaNode.cpp"
 
 #endif

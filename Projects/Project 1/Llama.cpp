@@ -6,7 +6,7 @@
 #include "Llama.h"
 
 /*
- * File:    Llama.cpp
+ * File:    Llama<T, LN_SIZE>.cpp
  * Author:  Robert Rose
  * Section: 3
  * Created: 10/1/16
@@ -17,8 +17,9 @@
 
 using namespace std;
 
-Llama::Llama() {
-    LlamaNode* newNode = new LlamaNode;
+template <class T, int LN_SIZE>
+Llama<T, LN_SIZE>::Llama() {
+    LlamaNode<T, LN_SIZE>* newNode = new LlamaNode<T, LN_SIZE>;
 
     m_dataStart = newNode;
     m_firstNode = newNode;
@@ -30,18 +31,20 @@ Llama::Llama() {
     m_capacity = LN_SIZE;
 }
 
-Llama::Llama(const Llama& other) {
+
+template <class T, int LN_SIZE>
+Llama<T, LN_SIZE>::Llama(const Llama<T, LN_SIZE>& other) {
 
 }
 
-Llama::~Llama() {
-    LlamaNode* delNode = m_firstNode;
-    LlamaNode* nextNode = delNode->m_next;
+template <class T, int LN_SIZE>
+Llama<T, LN_SIZE>::~Llama<T, LN_SIZE>() {
+    LlamaNode<T, LN_SIZE>* delNode = m_firstNode;
+    LlamaNode<T, LN_SIZE>* nextNode = delNode->m_next;
 
     while(nextNode != NULL) {
 //        for(int i = 0; i < LN_SIZE; i++) {
 //            delete delNode->arr[i];
-//            delNode->arr[i] = NULL;
 //        }
 
         delNode->m_next = NULL;
@@ -54,16 +57,23 @@ Llama::~Llama() {
     m_dataStart = NULL;
 }
 
-int Llama::size() {
+template <class T, int LN_SIZE>
+int Llama<T, LN_SIZE>::size() {
     return m_count;
 }
 
-void Llama::dump() {
+template <class T, int LN_SIZE>
+int Llama<T, LN_SIZE>::capacity() {
+    return m_capacity;
+}
+
+template <class T, int LN_SIZE>
+void Llama<T, LN_SIZE>::dump() {
     cerr << "***** Llama Stack Dump *****" << endl;
     cerr << "LN_SIZE = " << LN_SIZE << endl;
     cerr << "# of items in the stack = " << m_count << endl;
-    cerr << "# of nodes created = " << LlamaNode::newCount << endl;
-    cerr << "# of nodes destroyed = " << LlamaNode::deleteCount << endl;
+    cerr << "# of nodes created = " << LlamaNode<T, LN_SIZE>::newCount << endl;
+    cerr << "# of nodes destroyed = " << LlamaNode<T, LN_SIZE>::deleteCount << endl;
 
     cerr << endl;
 
@@ -77,7 +87,7 @@ void Llama::dump() {
 
     cerr << "Stack contents, top to bottom" << endl;
 
-    LlamaNode* itr = m_dataStart;
+    LlamaNode<T, LN_SIZE>* itr = m_dataStart;
 
     do {
         cerr << "----- " << itr << "-----" << endl;
@@ -87,7 +97,7 @@ void Llama::dump() {
         int numItems = LN_SIZE;
         if(itr == m_firstNode) {
             // If we're at the top of the stack, determine how many items are
-            // in this LlamaNode
+            // in this Llama<T, LN_SIZE>Node
             numItems = m_count % LN_SIZE;
         }
 
@@ -104,11 +114,12 @@ void Llama::dump() {
     cerr << "*****************************" << endl;
 }
 
-void Llama::push(const T& data) {
+template <class T, int LN_SIZE>
+void Llama<T, LN_SIZE>::push(const T& data) {
     if(m_count + 1 > m_capacity) {
         // This means we need to create a new Node to hold more data
         // Create new node and set all the relevant pointers
-        LlamaNode* newNode = new LlamaNode;
+        LlamaNode<T, LN_SIZE>* newNode = new LlamaNode<T, LN_SIZE>;
         newNode->m_next = m_firstNode;
         m_firstNode = newNode;
         m_dataStart = newNode;
@@ -132,7 +143,8 @@ void Llama::push(const T& data) {
     }
 }
 
-T Llama::pop() {
+template <class T, int LN_SIZE>
+T Llama<T, LN_SIZE>::pop() {
     if(m_count == 0) {
         throw LlamaUnderflow("Cannot pop 0 items.");
     }
@@ -144,13 +156,13 @@ T Llama::pop() {
 
     T item;
 
-    if(m_firstNode == m_dataStart) {
-        item = m_dataStart->arr[(m_count % LN_SIZE) - 1];
-    } else {
-        item = m_dataStart->arr[(LN_SIZE - (m_count % LN_SIZE)) - 1];
-    }
-
     m_count--;
+
+//    if(m_firstNode == m_dataStart) {
+        item = m_dataStart->arr[m_count % LN_SIZE];
+//    } else {
+//        item = m_dataStart->arr[(LN_SIZE - (m_count % LN_SIZE)) - 1];
+//    }
 
 
     if((m_capacity - m_count == LN_SIZE + LN_SIZE/2) && m_dataStart != m_firstNode) {
@@ -168,7 +180,9 @@ T Llama::pop() {
     return item;
 }
 
-void Llama::dup() {
+// I know there aren't the best way of doing it but I'm running out of time.
+template <class T, int LN_SIZE>
+void Llama<T, LN_SIZE>::dup() {
     if(m_count == 0) {
         throw LlamaUnderflow("Cannot duplicate 0 items.");
     }
@@ -179,7 +193,8 @@ void Llama::dup() {
     push(toDupe);
 }
 
-void Llama::swap() {
+template <class T, int LN_SIZE>
+void Llama<T, LN_SIZE>::swap() {
     if(m_count < 2) {
         throw LlamaUnderflow("Cannot swap < 2 items.");
     }
@@ -191,7 +206,8 @@ void Llama::swap() {
     push(b);
 }
 
-void Llama::rot() {
+template <class T, int LN_SIZE>
+void Llama<T, LN_SIZE>::rot() {
     if(m_count < 3) {
         throw LlamaUnderflow("Cannot rotate < 3 items.");
     }
@@ -205,12 +221,13 @@ void Llama::rot() {
     push(c);
 }
 
-T Llama::peek(int offset) const {
+template <class T, int LN_SIZE>
+T Llama<T, LN_SIZE>::peek(int offset) const {
     if(offset >= m_count) {
         throw LlamaUnderflow("Offset too large.");
     }
 
-    LlamaNode* itr = m_dataStart;
+    LlamaNode<T, LN_SIZE>* itr = m_dataStart;
     int itemsTotal = 0;
 
     int inFirstNode = 0;
@@ -220,7 +237,7 @@ T Llama::peek(int offset) const {
 
         if(itr == m_dataStart) {
             // If we're at the top of the stack, determine how many items are
-            // in this LlamaNode and only add them to the total.
+            // in this Llama<T, LN_SIZE>Node and only add them to the total.
             itemsTotal += m_count % LN_SIZE;
             numItemsInThisNode = m_count % LN_SIZE;
 

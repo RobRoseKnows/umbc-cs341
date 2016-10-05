@@ -16,7 +16,7 @@ using namespace std ;
 
 int main() {
 
-   Llama S ;
+   Llama<string, 4> S;
 
    // Push a bunch of strings
 
@@ -90,7 +90,6 @@ int main() {
    cerr << endl;
 
    S.dump() ;  // extra node should be gone
-
 
    return 0 ;
 }

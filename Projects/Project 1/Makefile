@@ -1,5 +1,5 @@
-CXX = g++
-DEBUG = -g
+BCXX = g++
+DEBUG = -ggdb -g3
 FLAGS = -ansi -Wall $(DEBUG)
 # My object driver
 OBJSDM = Llama.o LlamaNode.o Driver.cpp
