@@ -40,7 +40,7 @@ class Llama {
    public:
 
    Llama() ;
-   Llama(const Llama<T,LN_SIZE>& other) ;   // copy constructor
+   Llama(const Llama& other) ;   // copy constructor
    ~Llama() ;
 
 
@@ -70,22 +70,17 @@ class Llama {
 
    private:
 
-   // The point at which we delete the previous node. As per a
-   // piazzaz answer that says we should round up when dividing
-   // odd lengths.
-   const int KILL_POINT = (LN_SIZE % 2 == 1) ? LN_SIZE / 2 + 1 : LN_SIZE / 2;
-
    // This uses an inverted stack. The "dataStart" pointer refers to
    // the first node with data in the series
-   LlamaNode * m_dataStart = NULL;
+   LlamaNode * m_dataStart;
    // The "firstNode" pointer refers to the first node used in the
    // program, even if it's empty.
-   LlamaNode * m_firstNode = NULL;
+   LlamaNode * m_firstNode;
 
    // The number of items in the node.
-   int m_count = 0;
-   int m_capacity = 0;
-   int m_numNodes = 0;
+   int m_count ;
+   int m_capacity ;
+   int m_numNodes ;
 
    //
    // Add your private member functions & private data mebers here:

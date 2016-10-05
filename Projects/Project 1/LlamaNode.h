@@ -1,6 +1,10 @@
 #ifndef _LLAMANODE_H_
 #define _LLAMANODE_H_
 
+#define T string
+#define LN_SIZE 4
+
+
 /* File: LlamaNode.h
 
    UMBC CMSC 341 Fall 2016 Project 1
@@ -27,7 +31,7 @@ class Llama ;
 //template <class T, int LN_SIZE>
 class LlamaNode {
 
-   friend class Llama<T,LN_SIZE> ;
+   friend class Llama ;
 
    public:
 
