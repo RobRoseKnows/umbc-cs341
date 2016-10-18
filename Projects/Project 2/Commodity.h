@@ -1,5 +1,5 @@
 #ifndef COMMODITY_H_
-#define COOMODITY_H_
+#define COMMODITY_H_
 
 /*
  * File:    Commodity.h
@@ -10,6 +10,8 @@
  * Description:
  *
  */
+
+#include <string>
 
 using namespace std;
 
@@ -26,15 +28,22 @@ public:
     };
 
     Commodity(string name, string color);
-    ~Commodity();
 
 
-    string getName() const;
-    COLOR getColor() const;
+    /* Defined getters in header file. */
+    // Getter for color.
+    COLOR getColor() const {
+        return m_eColor;
+    }
+
+    // Returns the name of a commodity
+    string getName() const {
+        return m_sName;
+    }
 
 private:
     string m_sName;
-    string m_eColor;
+    COLOR m_eColor;
 
     COLOR resolveColor(string color);
 };

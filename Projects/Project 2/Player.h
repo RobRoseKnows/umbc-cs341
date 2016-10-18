@@ -31,11 +31,16 @@ public:
         COLOR_BROWN
     };
 
-    string getName() const;
-    int getScore() const;
     void addCard(Card* card);
+    int getScore() const;
     int calculateScore(Player::STRATEGY strategy);
-    void printResult
+    void printResult;
+
+
+    string getName() const {
+        return m_sName;
+    }
+
 
 private:
     string m_sName;

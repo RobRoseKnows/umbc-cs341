@@ -9,26 +9,33 @@
  */
 
 #include "Commodity.h"
+#include <string>
 
 using namespace std;
 
 Commodity::Commodity(string name, string color) {
     m_sName = name;
-
+    m_eColor = resolveColor(color);
 }
 
-Commodity::~Commodity() {
-
-}
-
-Commodity::COLOR Commodity::getColor() const {
-    return m_eColor;
-}
-
-string Commodity::getName() const {
-    return m_sName;
-}
-
+// Takes a string color name and returns the COLOR type.
 Commodity::COLOR Commodity::resolveColor(string color) {
 
+    // Really wish I could use switch statements with strings in C++
+    if(color == "Purple") {
+        return PURPLE;
+    } else if (color == "Red") {
+        return RED;
+    } else if (color == "Orange") {
+        return ORANGE;
+    } else if (color == "Black") {
+        return BLACK;
+    } else if (color == "Green") {
+        return GREEN;
+    } else if (color == "Brown") {
+        return BROWN;
+    } else {
+        // COLORLESS is the default.
+        return COLORLESS;
+    }
 }
