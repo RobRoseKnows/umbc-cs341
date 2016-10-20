@@ -1,6 +1,6 @@
 CXX = g++
 DEBUG = -g
-FLAGS = -ansi -Wall $(DEBUG)
+FLAGS = -ansi -std=c++98 $(DEBUG)
 OBJS = Driver.o Game.o CommodityStore.o Objective.o Commodity.o Player.o Card.o
 
 all: $(OBJS)
@@ -28,7 +28,7 @@ Card.o: Card.cpp Card.h Commodity.h
 	$(CXX) $(FLAGS) -c Card.cpp
 
 val:
-	valgrind --leak-check=full ./a.out $(CARDS) $(COMMODITIES)
+	valgrind --leak-check=full ./a.out $(CARDS) $(COMMODITIES) $(PLAYERS) $(STRATEGY)
 
 test: 
 	./a.out $(CARDS) $(COMMODITIES)

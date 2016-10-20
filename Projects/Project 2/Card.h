@@ -18,10 +18,13 @@
 
 using namespace std;
 
+#include "Objective.h"
 #include "Commodity.h"
+#include "Player.h"
 
 class Objective;
 class Commodity;
+class Player;
 
 // This is thrown if there are any exceptions while running in the Card class.
 class CardException : public std::runtime_error {
@@ -72,6 +75,9 @@ public:
     // highest payoff.
     Objective* getByColor(Commodity::COLOR color);
 
+
+    Objective* getFromStrategy(Player::STRATEGY strat);
+
     /****
      * Name: printCard()
      * PreCondition:    No precondition but it won't be much help unless the card has
@@ -87,6 +93,7 @@ private:
     // that check for the highest payoff. This method checks a vector that's
     // passed in as a parameter.
     Objective* highestPayoffAmong(vector<Objective*> toCheck);
+
 };
 
 #endif

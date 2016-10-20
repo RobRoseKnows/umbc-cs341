@@ -16,8 +16,8 @@
 
 using namespace std;
 
-class Card;
 class Objective;
+class Card;
 
 class Player {
 public:
@@ -32,14 +32,22 @@ public:
         COLOR_BROWN
     };
 
-    Player();
+    Player(string name);
     ~Player();
 
     void addCard(Card* card);
+
+
     int getScore() const;
+
+
     int calculateScore(Player::STRATEGY strategy);
+
+
     void printResult(ofstream & fileStream);
 
+
+    string strategyToString(STRATEGY strat);
 
     string getName() const {
         return m_sName;

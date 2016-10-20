@@ -9,8 +9,11 @@
  *      or find the best card for a certain strategy.
  */
 
-#include "Card.h"
 #include "Objective.h"
+#include "Player.h"
+#include "Commodity.h"
+#include "Card.h"
+
 
 #include <fstream>
 #include <vector>
@@ -29,6 +32,39 @@ Card::~Card() {
         delete m_objectives[m_objectives.size() - 1];
         m_objectives.pop_back();
 
+    }
+}
+
+
+Objective* Card::getFromStrategy(Player::STRATEGY strat) {
+    switch(strat) {
+        case Player::BEST_PAYOFF:
+            return getBestPayoff();
+
+        case Player::FIRST_DESTINATION:
+            return getFirstAlphaDestination();
+
+        case Player::COLOR_PURPLE:
+            return getByColor(Commodity::PURPLE);
+
+        case Player::COLOR_RED:
+            return getByColor(Commodity::RED);
+
+        case Player::COLOR_ORANGE:
+            return getByColor(Commodity::ORANGE);
+
+        case Player::COLOR_BLACK:
+            return getByColor(Commodity::BLACK);
+
+        case Player::COLOR_GREEN:
+            return getByColor(Commodity::GREEN);
+
+        case Player::COLOR_BROWN:
+            return getByColor(Commodity::BROWN);
+
+        default:
+            cerr << "Not a valid strategy";
+            return getBestPayoff();
     }
 }
 
