@@ -61,6 +61,8 @@ void Game::loadCards(string filename) {
     ifstream fileIn;
     fileIn.open(filename.c_str(), fileIn.in);
 
+    cerr << "Load cards start." << endl;
+
     while(!fileIn.eof()) {
 
         Card* newCard = new Card;
@@ -74,8 +76,12 @@ void Game::loadCards(string filename) {
         fileIn >> commName;
         fileIn >> payStr;
 
+        cerr << dest << " " << commName << " " << payStr << endl;
+
         int pay;
         istringstream(payStr) >> pay;
+
+        cerr << pay << endl;
 
         Objective* newObjective = createObjective(dest, commName, pay);
 
@@ -91,12 +97,18 @@ void Game::loadCards(string filename) {
 
     fileIn.close();
 
+    cerr << "Load cards end." << endl;
+
 }
 
 
 Objective* Game::createObjective(string dest, string commName, int pay) {
 
+    cerr << "Begin CO" << endl;
+
     Commodity* commodity = m_bank.getCommodity(commName);
+
+    cerr << commodity->getName();
 
     return new Objective(dest, commodity, pay);
 

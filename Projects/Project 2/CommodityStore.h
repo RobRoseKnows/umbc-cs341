@@ -35,10 +35,7 @@ public:
     // This is for testing only.
     void printCommodities(ofstream& fileStream);
 
-    // Define getter in header file.
-    Commodity* getCommodity(string name) {
-        return m_store[name];
-    } ;
+    Commodity* getCommodity(string name) ;
 private:
     map<string, Commodity*> m_store;
 };

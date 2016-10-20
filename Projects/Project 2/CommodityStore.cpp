@@ -83,3 +83,8 @@ void CommodityStore::printCommodities(ofstream& fileStream) {
     fileStream << "--------------------------" << endl;
 }
 
+Commodity* CommodityStore::getCommodity(string name) {
+    cerr << name << endl;
+    return m_store[name];
+}
+
