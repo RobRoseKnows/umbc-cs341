@@ -1,18 +1,20 @@
 #ifndef CARD_H_
 #define CARD_H_
 /*
- * File:    Card.h
- * Author:  Robert Rose
- * Section: 3
- * Created: 10/11/16
- * E-mail:  robrose2@umbc.edu
- * Description:
- *
+ *  File:    Card.h
+ *  Author:  Robert Rose
+ *  Section: 3
+ *  Created: 10/11/16
+ *  E-mail:  robrose2@umbc.edu
+ *  Description:
+ *      This is the class header file for the Card class. It defines function protypes and
+ *      member variables as well as an Exception that can be thrown by the Card class.
  */
 
 #include <fstream>
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 using namespace std;
 
@@ -26,7 +28,7 @@ class CardException : public std::runtime_error {
 
    public:
 
-   CardException(const string& what) : std::runtime_error(what) { }
+    CardException(const string& what) : std::runtime_error(what) { }
 
 } ;
 
@@ -38,14 +40,30 @@ public:
     // Deconstructer that deletes all the objectives in the m_objectives pointer.
     ~Card();
 
-    // Inserts an objective into the card.
+    /****
+     * Name: addObjective()
+     * PreCondition:    No preconditions required.
+     * PostCondition:   Adds one more objective to the m_objectives vector.
+     **/
     void addObjective(Objective* objective);
 
-    // Returns a pointer to the objective that has the best payoff. Calls the
-    // highestPayoffAmong() function.
+    /****
+     * Name: getBestPayoff()
+     * PreCondition:    In order to actually return something, there must be at least
+     *                  one objective in the m_objectives vector. Otherwise it will
+     *                  throw a CardException.
+     * PostCondition:   Returns the pointer to the objective with the highest payoff.
+     **/
     Objective* getBestPayoff();
 
-    // Gets the pointer to the objective with first alphabetical name.
+    /****
+     * Name: getFirstAlphaDestination()
+     * PreCondition:    In order to actually return something, there must be at least one
+     *                  objective in the m_objectives vector. Otherwise it will throw a
+     *                  CardException.
+     * PostCondition:   Returns the pointer to the objective with the destination with
+     *                  the highest name alphabetically.
+     **/
     Objective* getFirstAlphaDestination();
 
     // Returns a pointer to the objective with a commodity whose color matches
@@ -54,7 +72,13 @@ public:
     // highest payoff.
     Objective* getByColor(Commodity::COLOR color);
 
-    // This prints the card's objectives.
+    /****
+     * Name: printCard()
+     * PreCondition:    No precondition but it won't be much help unless the card has
+     *                  some objectives.
+     * PostCondition:   Prints a header for the card and then prints each objective in
+     *                  order of when they were added to the card.
+     **/
     void printCard(ofstream& fileStream);
 private:
     vector<Objective*> m_objectives;

@@ -10,8 +10,9 @@
  *
  */
 
-#include <stdlib.h>
 #include <queue>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -31,10 +32,13 @@ public:
         COLOR_BROWN
     };
 
+    Player();
+    ~Player();
+
     void addCard(Card* card);
     int getScore() const;
     int calculateScore(Player::STRATEGY strategy);
-    void printResult;
+    void printResult(ofstream & fileStream);
 
 
     string getName() const {

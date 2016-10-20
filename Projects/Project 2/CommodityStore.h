@@ -10,16 +10,35 @@
  *
  */
 
+#include "Commodity.h"
+
 #include<map>
+#include<string>
 
 using namespace std;
 
-class Commodity;
-
 class CommodityStore {
 public:
+
+
+    ~CommodityStore();
+
+    /****
+     * Name: loadCommodities()
+     * PreCondition:    Requires a list of commodities with name and color on the same line delimited
+     *                  by a space. Each one should only be one word long. Different commodities
+     *                  should be on different lines.
+     * PostCondition:   All the commodities in the given file should now be in the map m_store.
+     **/
     void loadCommodities(string filename);
-    Commodity* getCommodity(string name);
+
+    // This is for testing only.
+    void printCommodities(ofstream& fileStream);
+
+    // Define getter in header file.
+    Commodity* getCommodity(string name) {
+        return m_store[name];
+    } ;
 private:
     map<string, Commodity*> m_store;
 };

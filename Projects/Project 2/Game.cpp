@@ -7,3 +7,97 @@
  * Description:
  *
  */
+
+#include "Game.h"
+#include<fstream>
+#include<sstream>
+#include<istream>
+#include<iterator>
+#include<algorithm>
+
+using namespace std;
+
+
+Game::~Game() {
+    while(!m_drawPile.empty()) {
+        delete m_drawPile.top();
+        m_drawPile.pop();
+    }
+}
+
+
+void Game::runSimulation(int players, Player::STRATEGY strategy) {
+
+}
+
+
+
+void Game::printDrawPile(ofstream& fileStream) {
+
+    fileStream << "---------- Draw Pile ----------" << endl;
+
+    stack<Card*> drawPileCopy = m_drawPile;
+
+    while(!drawPileCopy.empty()) {
+
+        Card* top = drawPileCopy.top();
+        drawPileCopy.pop();
+
+        top->printCard(fileStream);
+
+    }
+}
+
+
+
+void Game::printResults(ofstream& fileStream) {
+
+}
+
+
+
+void Game::loadCards(string filename) {
+
+    ifstream fileIn;
+    fileIn.open(filename.c_str(), fileIn.in);
+
+    while(!fileIn.eof()) {
+
+        Card* newCard = new Card;
+
+        // Get the string representations of each of the values.
+        string dest;
+        string commName;
+        string payStr;
+
+        fileIn >> dest;
+        fileIn >> commName;
+        fileIn >> payStr;
+
+        int pay;
+        istringstream(payStr) >> pay;
+
+        Objective* newObjective = createObjective(dest, commName, pay);
+
+        cerr << newObjective->getCommodity()->getName() << " to "
+                << newObjective->getDestination() << " for "
+                << newObjective->getPayoff() << endl;
+
+        newCard->addObjective(newObjective);
+
+        m_drawPile.push(newCard);
+
+    }
+
+    fileIn.close();
+
+}
+
+
+Objective* Game::createObjective(string dest, string commName, int pay) {
+
+    Commodity* commodity = m_bank.getCommodity(commName);
+
+    return new Objective(dest, commodity, pay);
+
+}

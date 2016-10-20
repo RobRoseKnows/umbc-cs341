@@ -24,9 +24,7 @@ Objective::Objective(string dest, Commodity* comm, int pay) {
 
 // Delete the dynamic memory.
 Objective::~Objective() {
-    // TODO: I think the deletion of the Commodity should occur elsewhere but I'm
-    // leaving this here so I know what to try if I have a memory leak.
-//    delete m_pCommodity;
+    m_pCommodity = NULL;
 }
 
 // Prints the objective out to the ofstream.

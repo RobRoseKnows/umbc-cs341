@@ -17,20 +17,30 @@
 using namespace std;
 
 #include "Player.h"
-
-class Player;
-class Card;
-class CommodityStore;
+#include "CommodityStore.h"
+#include "Card.h"
+#include "Objective.h"
 
 class Game {
 public:
+
+    ~Game();
+
     void runSimulation(int players, Player::STRATEGY strategy);
+
     void printDrawPile(ofstream& fileStream);
+
     void printResults(ofstream& fileStream);
+
+    void loadCards(string filename);
+
 private:
+
     stack<Card*> m_drawPile;
     vector<Player*> m_players;
     CommodityStore m_bank;
+
+    Objective* createObjective(string dest, string commName, int pay);
 
 };
 #endif

@@ -27,6 +27,12 @@ Player.o: Player.cpp Player.h
 Card.o: Card.cpp Card.h Commodity.h
 	$(CXX) $(FLAGS) -c Card.cpp
 
+val:
+	valgrind --leak-check=full ./a.out $(CARDS) $(COMMODITIES)
+
+test: 
+	./a.out $(CARDS) $(COMMODITIES)
+
 run:
 	./a.out $(CARDS) $(COMMODITIES) $(PLAYERS) $(STRATEGY)
 

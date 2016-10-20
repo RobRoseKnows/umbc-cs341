@@ -20,7 +20,7 @@ class Objective {
 public:
     // Constructor that takes destination, commodity and payoff.
     Objective(string dest, Commodity* comm, int pay);
-    // Deconstructor to get rid of the commodity pointer.
+    // Deconstructor
     ~Objective();
 
     // Prints the objective to an ofsteam.

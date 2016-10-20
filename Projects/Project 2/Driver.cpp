@@ -8,30 +8,50 @@
  *
  */
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+
+#include "Game.h"
+#include "CommodityStore.h"
 
 void printGreeting();
 
 int main(int argc, char ** argv) {
+    printGreeting();
+
     string cardFileName = "";
     string commodFileName = "";
-    string playerFileName = "";
-    string strat = "";
+//    string playerFileName = "";
+//    string strat = "";
 
-    if(argc == 4) {
-        cardFileName = argv[0];
-        commodFileName = argv[1];
-        playerFileName = argv[2];
-        strat = argv[3];
+    if(argc >= 2) {
+        cardFileName = argv[1];
+        commodFileName = argv[2];
+//        playerFileName = argv[3];
+//        strat = argv[4];
     } else {
         std::cerr << "Not enough arguments." << endl;
         return 1;
     }
 
+    CommodityStore store = CommodityStore();
+    Game game = Game();
+
+    store.loadCommodities(commodFileName);
+    game.loadCards(cardFileName);
+
+    ofstream fileOut;
+
+    fileOut.open("results.txt", fileOut.out);
+
+    store.printCommodities(fileOut);
+    game.printDrawPile(fileOut);
+
+    fileOut.close();
 
 }
 
 void printGreeting() {
-    std::cerr << "Robert Rose 3";
+    std::cerr << "Robert Rose 3" << endl;
 }
