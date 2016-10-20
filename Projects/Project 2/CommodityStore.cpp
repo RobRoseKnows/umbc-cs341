@@ -14,6 +14,7 @@
 #include<fstream>
 #include<istream>
 #include<iostream>
+#include<stdexcept>
 
 using namespace std;
 
@@ -51,6 +52,12 @@ void CommodityStore::loadCommodities(string filename) {
         fileIn >> commodityName;
         fileIn >> commodityColor;
 
+        // Get rid of our issues with the final line.
+        if(commodityName == "") {
+            fileIn.close();
+            return;
+        }
+
 //        cerr << commodityName << " " << commodityColor << endl;
 
         // Create the new commodity and add it to the map.
@@ -84,7 +91,12 @@ void CommodityStore::printCommodities(ofstream& fileStream) {
 }
 
 Commodity* CommodityStore::getCommodity(string name) {
-    cerr << name << endl;
-    return m_store[name];
+//    cerr << name << endl;
+
+    try {
+        return m_store.at(name);
+    } catch(exception e) {
+        throw StoreException("No commodity with given name.");
+    }
 }
 

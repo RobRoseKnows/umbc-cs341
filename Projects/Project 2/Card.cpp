@@ -39,7 +39,7 @@ Card::~Card() {
  * PostCondition:   Adds one more objective to the back of the m_objectives vector.
  **/
 void Card::addObjective(Objective* objective) {
-    cerr << "added objective" << endl;
+//    cerr << "added objective" << endl;
     m_objectives.push_back(objective);
 }
 

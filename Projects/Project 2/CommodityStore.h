@@ -14,8 +14,18 @@
 
 #include<map>
 #include<string>
+#include<stdexcept>
 
 using namespace std;
+
+// This is thrown if there are any exceptions while running in the CommodityStore class.
+class StoreException : public std::runtime_error {
+
+   public:
+
+    StoreException(const string& what) : std::runtime_error(what) { }
+
+} ;
 
 class CommodityStore {
 public:

@@ -24,6 +24,8 @@ using namespace std;
 class Game {
 public:
 
+    Game();
+
     ~Game();
 
     void runSimulation(int players, Player::STRATEGY strategy);
@@ -34,11 +36,15 @@ public:
 
     void loadCards(string filename);
 
+    CommodityStore* getBank() {
+        return m_bank;
+    }
+
 private:
 
     stack<Card*> m_drawPile;
     vector<Player*> m_players;
-    CommodityStore m_bank;
+    CommodityStore* m_bank;
 
     Objective* createObjective(string dest, string commName, int pay);
 

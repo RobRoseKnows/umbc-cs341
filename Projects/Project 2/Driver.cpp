@@ -16,6 +16,7 @@ using namespace std;
 #include "CommodityStore.h"
 
 void printGreeting();
+void printGreeting(ofstream& out);
 
 int main(int argc, char ** argv) {
     printGreeting();
@@ -25,7 +26,9 @@ int main(int argc, char ** argv) {
 //    string playerFileName = "";
 //    string strat = "";
 
-    if(argc >= 2) {
+//cerr << argc << endl;
+
+    if(argc >= 3){
         cardFileName = argv[1];
         commodFileName = argv[2];
 //        playerFileName = argv[3];
@@ -35,17 +38,20 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    CommodityStore store = CommodityStore();
     Game game = Game();
+    CommodityStore* store = game.getBank();
 
-    store.loadCommodities(commodFileName);
-    game.loadCards(cardFileName);
 
     ofstream fileOut;
 
     fileOut.open("results.txt", fileOut.out);
 
-    store.printCommodities(fileOut);
+    printGreeting(fileOut);
+
+    store->loadCommodities(commodFileName);
+//    store->printCommodities(fileOut);
+
+    game.loadCards(cardFileName);
     game.printDrawPile(fileOut);
 
     fileOut.close();
@@ -53,5 +59,9 @@ int main(int argc, char ** argv) {
 }
 
 void printGreeting() {
-    std::cerr << "Robert Rose 3" << endl;
+    std::cerr << "Robert Rose, Section 03" << endl;
+}
+
+void printGreeting(ofstream& out) {
+    out << "Robert Rose, Section 03" << endl;
 }
