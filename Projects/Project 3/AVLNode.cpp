@@ -18,6 +18,7 @@
 using namespace std;
 
 
+
 template <typename DATA, typename KEY>
 AVLNode<DATA, KEY>::AVLNode(KEY key, DATA data) {
     m_key = key;
@@ -54,21 +55,23 @@ int AVLNode<DATA, KEY>::calcHeight() {
     int hR = 0;
 
     if(m_left != NULL) {
-        hL = m_left->calcHeight();
+        hL = m_left->m_height;
     }
 
     if(m_right != NULL) {
-        hR = m_right->calcHeight();
+        hR = m_right->m_height;
     }
 
     m_height = std::max(hL, hR) + 1;
     return m_height;
 }
 
+
 //template <typename KEY, typename DATA>
 //bool AVLNode<KEY, DATA>::operator<(const AVLNode& lhs, const AVLNode& rhs)
 //{
 //    return lhs->m_key < rhs->m_key;
 //}
+
 
 #endif

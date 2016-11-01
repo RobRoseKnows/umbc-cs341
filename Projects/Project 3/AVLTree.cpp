@@ -46,9 +46,9 @@ AVLTree<DATA, KEY>::~AVLTree() {
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::insert(KEY key, DATA data) {
     if(m_root == NULL) {
-        m_root = new AVLNode<DATA, KEY>(key, data);
+        m_root = new Node(key, data);
     } else {
-        recursiveInsert(key, data, m_root);
+        m_root = recursiveInsert(key, data, m_root);
     }
 }
 
@@ -56,98 +56,59 @@ void AVLTree<DATA, KEY>::insert(KEY key, DATA data) {
 // This is the function that performs the recursive functioning of the insert function.
 // This exists so insert can be called while only knowing the key and data to insert.
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, AVLNode<DATA, KEY>* currNode) {
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, Node* currNode) {
 
-//    cout << "CurrNode: " << currNode << endl;
+//    if(currNode->m_left != NULL) {
+//        currNode->m_left->m_parent = currNode;
+//    }
+//
+//    if(currNode->m_right != NULL) {
+//        currNode->m_right->m_parent = currNode;
+//    }
 
     if(currNode == NULL) {
-//        cout << "equals NULL" << endl;
-        // We finally reached where th enode is supposed to go so we create it and return it.
-        currNode = new AVLNode<DATA, KEY>(key, data);
+
+        return new Node(key, data);
 
     } else if(key < currNode->m_key) {
 
-        // Go through until we can actually insert something, then return all the way back up.
         currNode->m_left = recursiveInsert(key, data, currNode->m_left);
-
-//        cout << currNode << endl;
-//        cout << currNode->m_left << endl;
-//        cout << currNode->m_left->m_data << endl;
-
-        if(currNode->m_left != NULL) {
-            // Set the parent because insert doesn't do that at all.
-            currNode->m_left->m_parent = currNode;
-        }
-
-        // Calculate the new heights.
-        currNode->calcHeight();
-
-        // Get left height or zero if NULL.
-        int leftHeight = 0;
-        if(currNode->m_left != NULL) {
-            leftHeight = currNode->m_left->m_height;
-        }
-
-        // Get right height or zero if NULL.
-        int rightHeight = 0;
-        if(currNode->m_right != NULL) {
-            rightHeight = currNode->m_right->m_height;
-        }
-
-        if(std::abs(leftHeight - rightHeight) > 1) {
-
-            if(currNode->m_right != NULL && key < currNode->m_left->m_key) {
-                // LL
-                return leftRotate(currNode);
-            } else {
-                // LR
-                return leftRightRotate(currNode);
-            }
-
-        }
 
     } else if(key > currNode->m_key) {
 
-        // Recursive call
         currNode->m_right = recursiveInsert(key, data, currNode->m_right);
-
-        // The initializer for AVLNode has no way of finding the parent.
-        if(currNode->m_right != NULL) {
-            // Set the parent because insert doesn't do that at all.
-            currNode->m_right->m_parent = currNode;
-        }
-
-        currNode->calcHeight();
-
-        int leftHeight = 0;
-        if(currNode->m_left != NULL) {
-            leftHeight = currNode->m_left->m_height;
-        }
-
-        int rightHeight = 0;
-        if(currNode->m_right != NULL) {
-            rightHeight = currNode->m_right->m_height;
-        }
-
-        if(std::abs(leftHeight - rightHeight) > 1) {
-
-            if(currNode->m_right != NULL && key < currNode->m_right->m_key) {
-                // RR
-                return rightRotate(currNode);
-            } else {
-                // RL
-                return rightLeftRotate(currNode);
-            }
-
-        }
-
     }
 
-    return currNode;
+    return balance(currNode);
 
 }
 
 
+template <typename DATA, typename KEY>
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::balance(Node* pivot) {
+    // Use the safeHeight helper functions to get the height.
+     pivot->m_height = 1 + std::max(safeHeight(pivot->m_left), safeHeight(pivot->m_right));
+
+     if(bfactor(pivot) == 2) {
+
+         if(bfactor(pivot->m_right) < 0) {
+             return rotateRightLeft(pivot);
+         } else {
+             return rotateLeft(pivot);
+         }
+
+     } else if(bfactor(pivot) == -2){
+
+         if(bfactor(pivot->m_left) > 0) {
+             return rotateLeftRight(pivot);
+         } else {
+             return rotateRight(pivot);
+         }
+
+     }
+
+     return pivot;
+}
 
 
 template <typename DATA, typename KEY>
@@ -157,15 +118,16 @@ bool AVLTree<DATA, KEY>::remove(KEY key) {
 
 
 
+
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::search(KEY key) {
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::search(KEY key) {
     return recursiveSearch(key, m_root);
 }
 
 // The function that performs the recursive portion of the search. Used so search()
 // can be called when all the user has is a key.
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, KEY>* currNode) {
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::recursiveSearch(KEY key, Node* currNode) {
 
     if(currNode->m_key == key) {
 
@@ -173,7 +135,7 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, K
 
     } else if(currNode->m_left == NULL && key < currNode->m_key) {
 
-        AVLNode<DATA, KEY>* result = recursiveSearch(key, currNode->m_left);
+        Node* result = recursiveSearch(key, currNode->m_left);
         if(result != NULL) {
             return result;
         }
@@ -181,7 +143,7 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, K
     } else if(currNode->m_right == NULL && key > currNode->m_key) {
 
         // Node is to the right because key is greater than current.
-        AVLNode<DATA, KEY>* result = recursiveSearch(key, currNode->m_right);
+        Node* result = recursiveSearch(key, currNode->m_right);
         if(result != NULL) {
             return result;
         }
@@ -195,6 +157,7 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, K
 }
 
 
+// Prints the tree according to the provided print order.
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::print(PrintOrder order) {
 
@@ -221,14 +184,74 @@ void AVLTree<DATA, KEY>::print(PrintOrder order) {
 
 
 
-///////////////////////////////////////////////////////////////
-// These are the recursive printing functions that print all //
-// the information out in a recursive manner.                //
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+// These are the rotation functions that perform operations     //
+// on the tree. Special thanks to Wikipedia:                    //
+// https://en.wikipedia.org/wiki/Tree_rotation                  //
+//////////////////////////////////////////////////////////////////
+
+// When new node is added in Right of Right subtree
+template <typename DATA, typename KEY>
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateLeft(Node* pivot) {
+
+    Node* temp = pivot->m_right;
+
+    pivot->m_right = temp->m_left;
+
+    temp->m_right = pivot;
+
+    temp->calcHeight();
+    pivot->calcHeight();
+
+    return temp;
+}
+
+
+// When node is added to left of left subtree
+template <typename DATA, typename KEY>
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateRight(Node* pivot) {
+
+    Node* temp = pivot->m_left;
+    
+    pivot->m_left = temp->m_right;
+    
+    temp->m_right = pivot;
+    
+    temp->calcHeight();
+    pivot->calcHeight();
+
+    return temp;
+
+}
+
 
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateLeftRight(Node* pivot) {
+    pivot->m_left = rotateLeft(pivot->m_left);
+
+    return rotateRight(pivot);
+}
+
+
+
+template <typename DATA, typename KEY>
+typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateRightLeft(Node* pivot) {
+    pivot->m_right = rotateRight(pivot->m_right);
+
+    return rotateLeft(pivot);
+}
+
+
+
+//////////////////////////////////////////////////////////////////
+// These are the recursive printing functions that print all    //
+// the information out in a recursive manner.                   //
+//////////////////////////////////////////////////////////////////
+
+
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::recurPreOrder(Node* currNode, std::ostream& out) {
 
     if(currNode == NULL) {
         return;
@@ -248,7 +271,7 @@ void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, std::ostrea
 
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
+void AVLTree<DATA, KEY>::recurInOrder(Node* currNode, std::ostream& out) {
 
 //    cerr << currNode->m_data << endl;
 
@@ -270,7 +293,7 @@ void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, std::ostream
 
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
+void AVLTree<DATA, KEY>::recurPostOrder(Node* currNode, std::ostream& out) {
 
 //    cerr << currNode->m_data << endl;
 
@@ -291,110 +314,19 @@ void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, std::ostre
 }
 
 
-///////////////////////////////////////////////////////////////
-// These are the rotation functions that perform operations  //
-// on the tree.                                              //
-///////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////
+// These are some utility functions.                            //
+//////////////////////////////////////////////////////////////////
 
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::leftRotate(AVLNode<DATA, KEY>* pivot) {
-
-    cout << pivot << endl;
-
-    // Let temp be pivot's right child
-    AVLNode<DATA, KEY>* temp = pivot->m_right;
-
-    cout << temp << endl;
-
-    // Set pivot's right child to be temp's left child
-    pivot->m_right = temp->m_left;
-
-    // Set temp's left-child's parent to pivot
-    temp->m_left->m_parent = pivot;
-
-    // Set temp's left child to be pivot
-    temp->m_left = pivot;
-
-    // Set pivot's parent to be temp
-    pivot->m_parent = temp;
-
-    // Redo the height calculations for the heights
-    pivot->calcHeight();
-    temp->calcHeight();
-
+int AVLTree<DATA, KEY>::safeHeight(Node* node) {
+    return node != NULL ? node->m_height : 0;
 }
 
-
-
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::rightRotate(AVLNode<DATA, KEY>* pivot) {
-
-    // Let temp be pivot's left child
-    AVLNode<DATA, KEY>* temp = pivot->m_right;
-
-    // Set temp's left child to be pivot's right child
-    pivot->m_right = temp->m_left;
-
-    // Set pivot's right-child's parent to Temp
-    pivot->m_right->m_parent = temp;
-
-    // Set pivot's right child to be temp
-    temp->m_left = pivot;
-
-    // Set temp's parent to be pivot
-    temp->m_parent = pivot;
-
-    // Redo the height calculations for the heights
-    pivot->calcHeight();
-    temp->calcHeight();
-
-    return temp;
-
-}
-
-
-template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::rightRotate(AVLNode<DATA, KEY>* pivot) {
-
-    // Let temp be pivot's left child
-    AVLNode<DATA, KEY>* temp = pivot->m_right;
-
-    // Set temp's left child to be pivot's right child
-    pivot->m_right = temp->m_left;
-
-    // Set pivot's right-child's parent to Temp
-    pivot->m_right->m_parent = temp;
-
-    // Set pivot's right child to be temp
-    temp->m_left = pivot;
-
-    // Set temp's parent to be pivot
-    temp->m_parent = pivot;
-
-    // Redo the height calculations for the heights
-    pivot->calcHeight();
-    temp->calcHeight();
-
-    return temp;
-
-}
-
-
-
-// LR
-template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::leftRightRotate(AVLNode<DATA, KEY>* pivot) {
-    pivot->m_left = rightRotate(pivot->m_left);
-    return leftRotate(pivot);
-}
-
-
-// RL
-template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::rightLeftRotate(AVLNode<DATA, KEY>* pivot) {
-    pivot->m_right = leftRotate(pivot->m_right);
-    return rightRotate(pivot);
+int AVLTree<DATA, KEY>::bfactor(Node* node) {
+    return safeHeight(node->m_right) - safeHeight(node->m_left);
 }
 
 #endif

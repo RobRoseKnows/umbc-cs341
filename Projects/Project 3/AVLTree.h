@@ -20,13 +20,17 @@ using namespace std;
 template <typename DATA, typename KEY>
 class AVLTree : public AVLTreeBase {
 public:
+    // I got sick of writing the whole thing out so I created the type
+    // Node to represent the AVLNode<DATA, KEY> class.
+    typedef AVLNode<DATA, KEY> Node;
+
     AVLTree();
     ~AVLTree();
 
-    AVLNode<DATA, KEY>* leftRotate(AVLNode<DATA, KEY>* pivot);
-    AVLNode<DATA, KEY>* rightRotate(AVLNode<DATA, KEY>* pivot);
-    AVLNode<DATA, KEY>* leftRightRotate(AVLNode<DATA, KEY>* pivot);
-    AVLNode<DATA, KEY>* rightLeftRotate(AVLNode<DATA, KEY>* pivot);
+    Node* rotateLeft(Node* pivot);
+    Node* rotateRight(Node* pivot);
+    Node* rotateLeftRight(Node* pivot);
+    Node* rotateRightLeft(Node* pivot);
 
 
     void insert(KEY key, DATA data);
@@ -35,36 +39,43 @@ public:
     // Takes: A key to remove.
     // Returns: true if it found and removed the node, false otherwise.
     bool remove(KEY key);
-    AVLNode<DATA, KEY>* search(KEY key);
+    Node* search(KEY key);
 
     void print(PrintOrder order);
 
 
-    AVLNode<DATA, KEY>* getRoot() {
+    Node* getRoot() {
         return m_root;
     };
 
-    void setRoot(AVLNode<DATA, KEY>* root) {
+    void setRoot(Node* root) {
         m_root = root;
     };
+protected:
+    // Guards against null pointers.
+    int safeHeight(Node* node);
 
+    int bfactor(Node* node);
 private:
-    AVLNode<DATA, KEY>* m_root;
+
+    Node* m_root;
+
+    Node* balance(Node* pivot);
 
     // This is the recursive method that inserts the data into the tree and
     // performs the neccessary roations for it to be a proper AVL tree.
     // Takes: A key value, data to use and the node currently on.
     // Results: In a tree with the new node added.
-    AVLNode<DATA, KEY>* recursiveInsert(KEY key, DATA data, AVLNode<DATA, KEY>* node);
+    Node* recursiveInsert(KEY key, DATA data, Node* node);
 
     // This is the recursive method that searches for and returns the Node into the AVL tree
     // Takes: a key to search for and the current node being searched.
     // Returns: the node with a given key or NULL if the node is not found under the node.
-    AVLNode<DATA, KEY>* recursiveSearch(KEY key, AVLNode<DATA, KEY>* node);
+    Node* recursiveSearch(KEY key, Node* node);
 
-    void recurPreOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
-    void recurInOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
-    void recurPostOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
+    void recurPreOrder(Node* currNode, std::ostream& out);
+    void recurInOrder(Node* currNode, std::ostream& out);
+    void recurPostOrder(Node* currNode, std::ostream& out);
 };
 
 #include "AVLTree.cpp"

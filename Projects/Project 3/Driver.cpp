@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 
     cout << "Inserting 10" << endl;
     tree.insert(10, "10");
-    cout << "Expected 2 4 9 10";
+    cout << "Expected 2 4 9 10" << endl;
     tree.print(AVLTreeBase::IN);
-    cout << "Expected 4 2 9 10";
+    cout << "Expected 4 2 9 10" << endl;
     tree.print(AVLTreeBase::PRE);
 
     cout << "Inserting 8" << endl;

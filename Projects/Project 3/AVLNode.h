@@ -35,6 +35,8 @@ public:
 
     int calcHeight();
 
+    int balance();
+
 //    bool operator<(const AVLNode& lhs, const AVLNode& rhs);
 };
 
