@@ -4,6 +4,7 @@
 /* include your tree implementation  */
 #include <vector>
 #include <string>
+#include "AVLTreeBase.h"
 
 class AVLForest
 {

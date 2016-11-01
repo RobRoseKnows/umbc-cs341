@@ -1,3 +1,6 @@
+#ifndef AVLNODE_CPP_
+#define AVLNODE_CPP_
+
 /*
  * File:    AVLNode.cpp
  * Author:  Robert
@@ -10,13 +13,14 @@
 
 #include "AVLNode.h"
 #include <stdlib.h>
+#include <string>
 #include <algorithm>
 
 using namespace std;
 
 
-template <class KEY, class DATA>
-void AVLNode<KEY, DATA>::AVLNode<KEY, DATA>::AVLNode(KEY key, DATA data) {
+template <typename DATA, typename KEY>
+AVLNode<DATA, KEY>::AVLNode(DATA key, KEY data) {
     m_key = key;
     m_data = data;
 
@@ -28,8 +32,8 @@ void AVLNode<KEY, DATA>::AVLNode<KEY, DATA>::AVLNode(KEY key, DATA data) {
 }
 
 
-template <class KEY, class DATA>
-AVLNode<KEY, DATA>::~AVLNode() {
+template <typename DATA, typename KEY>
+AVLNode<DATA, KEY>::~AVLNode() {
     if(m_left != NULL) {
         delete m_left;
         m_left = NULL;
@@ -45,8 +49,8 @@ AVLNode<KEY, DATA>::~AVLNode() {
 
 
 
-template <class KEY, class DATA>
-void AVLNode<KEY, DATA>::calcHeight() {
+template <typename DATA, typename KEY>
+int AVLNode<DATA, KEY>::calcHeight() {
     int hL = 0;
     int hR = 0;
 
@@ -59,10 +63,13 @@ void AVLNode<KEY, DATA>::calcHeight() {
     }
 
     m_height = std::max(hL, hR) + 1;
+    return m_height;
 }
 
-//template <class KEY, class DATA>
-//bool AVLNode<KEY, DATA>::operator<(const AVLNode& lhs, const AVLNode& rhs)
+//template <typename DATA, typename KEY>
+//bool AVLNode<DATA, KEY>::operator<(const AVLNode& lhs, const AVLNode& rhs)
 //{
 //    return lhs->m_key < rhs->m_key;
 //}
+
+#endif

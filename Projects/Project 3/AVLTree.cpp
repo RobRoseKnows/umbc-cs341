@@ -1,3 +1,6 @@
+#ifndef AVLTREE_CPP_
+#define AVLTREE_CPP_
+
 /*
  * File:    AVLTree.cpp
  * Author:  Robert Rose
@@ -9,22 +12,22 @@
  */
 
 #include "AVLTree.h"
-#include <iostream>
 #include <stdlib.h>
 #include <algorithm>
+#include <string>
 
 using namespace std;
 
-template <class KEY, class DATA>
-AVLTree<KEY, DATA>::AVLTree() {
+template <typename DATA, typename KEY>
+AVLTree<DATA, KEY>::AVLTree() {
 
-
+    m_root = NULL;
 
 }
 
 
-template <class KEY, class DATA>
-AVLTree<KEY, DATA>::~AVLTree() {
+template <typename DATA, typename KEY>
+AVLTree<DATA, KEY>::~AVLTree() {
 
     // The deconstructor in AVLNode should delete the children recursively
     // for us.
@@ -34,24 +37,44 @@ AVLTree<KEY, DATA>::~AVLTree() {
 }
 
 
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::print(PrintOrder order, ostream& out) {
+
+    switch(order) {
+        case IN:
+            recurInOrder(m_root, out);
+            break;
+        case PRE:
+            recurPreOrder(m_root, out);
+            break;
+        case POST:
+            recurPostOrder(m_root, out);
+            break;
+        case LEVEL:
+            break;
+    }
+
+    out << endl;
+}
+
 
 // This insert function allows us to call the recursive function while only knowing
 // the key and the data.
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::insert(KEY key, DATA data) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::insert(KEY key, DATA data) {
     recursiveInsert(key, data, m_root);
 }
 
 
 // This is the function that performs the recursive functioning of the insert function.
 // This exists so insert can be called while only knowing the key and data to insert.
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::recursiveInsert(KEY key, DATA data, AVLNode<KEY, DATA>* currNode) {
+template <typename DATA, typename KEY>
+AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, AVLNode<DATA, KEY>* currNode) {
 
     if(currNode == NULL) {
 
-        // We finally reached where th enode is supposed to go so we create it and return it.
-        currNode = new AVLNode<KEY, DATA>(key, data);
+        // We finally reached where the node is supposed to go so we create it and return it.
+        currNode = new AVLNode<DATA, KEY>(key, data);
         return currNode;
 
     } else if(key < currNode->m_key) {
@@ -99,35 +122,33 @@ void AVLTree<KEY, DATA>::recursiveInsert(KEY key, DATA data, AVLNode<KEY, DATA>*
 
         }
 
-    } else {
-
-        // Need  to return something if it's equal to despite that never happening
-        // based from project specs.
-        return currNode;
-
     }
 
+    // Need  to return something if it's equal to despite that never happening
+    // based from project specs.
+    return currNode;
+
+
 }
 
 
 
-
-template <class KEY, class DATA>
-bool AVLTree<KEY, DATA>::remove(KEY key) {
+template <typename DATA, typename KEY>
+bool AVLTree<DATA, KEY>::remove(KEY key) {
 
 }
 
 
 
-template <class KEY, class DATA>
-AVLNode<KEY, DATA>* AVLTree<KEY, DATA>::search(KEY key) {
+template <typename DATA, typename KEY>
+AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::search(KEY key) {
     return recursiveSearch(key, m_root);
 }
 
 // The function that performs the recursive portion of the search. Used so search()
 // can be called when all the user has is a key.
-template <class KEY, class DATA>
-AVLNode<KEY, DATA>* AVLTree<KEY, DATA>::recursiveSearch(KEY key, AVLNode<KEY, DATA>* currNode) {
+template <typename DATA, typename KEY>
+AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, KEY>* currNode) {
 
     if(currNode->key == key) {
 
@@ -135,7 +156,7 @@ AVLNode<KEY, DATA>* AVLTree<KEY, DATA>::recursiveSearch(KEY key, AVLNode<KEY, DA
 
     } else if(currNode->m_left == NULL && key < currNode->m_key) {
 
-        AVLNode<KEY, DATA>* result = recursiveSearch(key, currNode->m_left);
+        AVLNode<DATA, KEY>* result = recursiveSearch(key, currNode->m_left);
         if(result != NULL) {
             return result;
         }
@@ -143,7 +164,7 @@ AVLNode<KEY, DATA>* AVLTree<KEY, DATA>::recursiveSearch(KEY key, AVLNode<KEY, DA
     } else if(currNode->m_right == NULL && key > currNode->m_key) {
 
         // Node is to the right because key is greater than current.
-        AVLNode<KEY, DATA>* result = recursiveSearch(key, currNode->m_right);
+        AVLNode<DATA, KEY>* result = recursiveSearch(key, currNode->m_right);
         if(result != NULL) {
             return result;
         }
@@ -158,8 +179,12 @@ AVLNode<KEY, DATA>* AVLTree<KEY, DATA>::recursiveSearch(KEY key, AVLNode<KEY, DA
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::recurPreOrder(AVLNode<KEY, DATA>* currNode, ostream& out) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+
+    if(currNode == NULL) {
+        return;
+    }
 
     out << currNode->m_data << " ";
 
@@ -174,24 +199,52 @@ void AVLTree<KEY, DATA>::recurPreOrder(AVLNode<KEY, DATA>* currNode, ostream& ou
 }
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::recurInOrder(AVLNode<KEY, DATA>* currNode, ostream& out) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+
+    if(currNode == NULL) {
+        return;
+    }
+
+    if(currNode->m_left != NULL) {
+        recurPreOrder(currNode->m_left, out);
+    }
+
+    out << currNode->m_data << " ";
+
+    if(currNode->m_right != NULL) {
+        recurPreOrder(currNode->m_right, out);
+    }
 
 }
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::recurPostOrder(AVLNode<KEY, DATA>* currNode, ostream& out) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+
+    if(currNode == NULL) {
+        return;
+    }
+
+    if(currNode->m_left != NULL) {
+        recurPreOrder(currNode->m_left, out);
+    }
+
+    if(currNode->m_right != NULL) {
+        recurPreOrder(currNode->m_right, out);
+    }
+
+    out << currNode->m_data << " ";
 
 }
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::leftRotate(AVLNode<KEY, DATA>* pivot) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::leftRotate(AVLNode<DATA, KEY>* pivot) {
 
     // Let temp be pivot's right child
-    AVLNode<KEY, DATA>* temp = pivot->m_right;
+    AVLNode<DATA, KEY>* temp = pivot->m_right;
 
     // Set pivot's right child to be temp's left child
     pivot->m_right = temp->m_left;
@@ -213,11 +266,11 @@ void AVLTree<KEY, DATA>::leftRotate(AVLNode<KEY, DATA>* pivot) {
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::rightRotate(AVLNode<KEY, DATA>* pivot) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::rightRotate(AVLNode<DATA, KEY>* pivot) {
 
     // Let temp be pivot's left child
-    AVLNode<KEY, DATA>* temp = pivot->m_left;
+    AVLNode<DATA, KEY>* temp = pivot->m_left;
 
     // Set temp's left child to be pivot's right child
     temp->m_left = pivot->m_right;
@@ -239,18 +292,22 @@ void AVLTree<KEY, DATA>::rightRotate(AVLNode<KEY, DATA>* pivot) {
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::leftRightRotate(AVLNode<KEY, DATA>* pivot) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::leftRightRotate(AVLNode<DATA, KEY>* pivot) {
+
     leftRotate(pivot);
     rightRotate(pivot);
+
 }
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::rightleftRotate(AVLNode<KEY, DATA>* pivot) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::rightleftRotate(AVLNode<DATA, KEY>* pivot) {
+
     rightRotate(pivot);
     leftRotate(pivot);
+
 }
 
 
@@ -261,22 +318,24 @@ void AVLTree<KEY, DATA>::rightleftRotate(AVLNode<KEY, DATA>* pivot) {
 
 
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::leftRotate(KEY pivotKey) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::leftRotate(KEY pivotKey) {
     leftRotate(search(pivotKey));
 }
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::rightRotate(KEY pivotKey) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::rightRotate(KEY pivotKey) {
     rightRotate(search(pivotKey));
 }
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::leftRightRotate(KEY pivotKey) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::leftRightRotate(KEY pivotKey) {
     leftRightRotate(search(pivotKey));
 }
 
-template <class KEY, class DATA>
-void AVLTree<KEY, DATA>::rightLeftRotate(KEY pivotKey) {
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::rightLeftRotate(KEY pivotKey) {
     rightLeftRotate(search(pivotKey));
 }
+
+#endif

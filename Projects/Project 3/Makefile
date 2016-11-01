@@ -1,7 +1,7 @@
 CXX = g++
 DEBUG = -g
 FLAGS = -ansi -std=c++98 $(DEBUG)
-OBJS = Driver.o AVLForest.o AVLNode.o AVLTree.o
+OBJS = Driver.o AVLNode.o AVLTree.o
 
 all: $(OBJS)
 	$(CXX) $(FLAGS) $(OBJS) -o a.out
@@ -20,6 +20,9 @@ AVLTree.o: AVLTree.cpp AVLTree.h AVLTreeBase.h
 
 val:
 	valgrind --leak-check=full ./a.out $(INPUT) $(RANGE)
+
+test:
+	./a.out
 
 run:
 	./a.out $(INPUT) $(RANGE)
