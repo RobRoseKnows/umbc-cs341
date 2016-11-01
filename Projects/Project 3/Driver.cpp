@@ -1,54 +1,24 @@
 #include "AVLForest.h"
 #include "AVLTree.h"
 #include "AVLTreeBase.h"
-
 #include <fstream>
-#include <iostream>
-#include <string>
-
-
-int main(int arc, char** argv) {
-    std::ostream out;
-
-    AVLTree<string, int> tree = AVLTree<string, int>();
-    tree.insert(9, "9");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(10,"10");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(3, "3");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(3, "2");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(3, "1");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(11, "11");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(8, "8");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-    tree.insert(12, "12");
-    tree.print(AVLTreeBase::IN, out);
-    tree.print(AVLTreeBase::PRE, out);
-
-
-}
-
+#include<iostream>
 
 // we know data is either char or string
 // we know numbers are either int or float
+
+int main(int argc, char** argv) {
+
+    cerr << "Did run" << endl;
+
+    AVLTree<string, int> tree = AVLTree<string, int>();
+    tree.insert(9, "9");
+    cerr << "Inserted" << endl;
+    tree.print(AVLTreeBase::IN);
+    tree.print(AVLTreeBase::PRE);
+
+    return 0;
+}
 
 //int main(int argc, char** argv)
 //{
@@ -61,7 +31,7 @@ int main(int arc, char** argv) {
 //  std::string line;
 //
 //  // open file for reading
-//  inputFile.open(argv[1], std::ios::IN);
+//  inputFile.open(argv[1], std::ios::in);
 //
 //  // read all lines
 //  while(std::getline(inputFile, line))
@@ -80,10 +50,13 @@ int main(int arc, char** argv) {
 //  std::cout<<"\n===============\n";
 //  std::cout<<"PRINTING RANGES";
 //  std::cout<<"\n===============\n";
-//  rangeFile.open(argv[2], std::ios::IN);
+//  rangeFile.open(argv[2], std::ios::in);
 //
 //  while(std::getline(rangeFile, line))
 //  {
 //    avlForest.print_range(std::cout, line);
 //  }
+//
+//
+//
 //}

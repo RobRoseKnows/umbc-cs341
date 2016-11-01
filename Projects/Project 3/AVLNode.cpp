@@ -13,14 +13,13 @@
 
 #include "AVLNode.h"
 #include <stdlib.h>
-#include <string>
 #include <algorithm>
 
 using namespace std;
 
 
 template <typename DATA, typename KEY>
-AVLNode<DATA, KEY>::AVLNode(DATA key, KEY data) {
+AVLNode<DATA, KEY>::AVLNode(KEY key, DATA data) {
     m_key = key;
     m_data = data;
 
@@ -66,8 +65,8 @@ int AVLNode<DATA, KEY>::calcHeight() {
     return m_height;
 }
 
-//template <typename DATA, typename KEY>
-//bool AVLNode<DATA, KEY>::operator<(const AVLNode& lhs, const AVLNode& rhs)
+//template <typename KEY, typename DATA>
+//bool AVLNode<KEY, DATA>::operator<(const AVLNode& lhs, const AVLNode& rhs)
 //{
 //    return lhs->m_key < rhs->m_key;
 //}

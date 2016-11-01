@@ -17,12 +17,12 @@ AVLNode.o: AVLNode.cpp AVLNode.h
 
 AVLTree.o: AVLTree.cpp AVLTree.h AVLTreeBase.h
 	$(CXX) $(FLAGS) -c AVLTree.cpp
+	
+test:
+	./a.out
 
 val:
 	valgrind --leak-check=full ./a.out $(INPUT) $(RANGE)
-
-test:
-	./a.out
 
 run:
 	./a.out $(INPUT) $(RANGE)

@@ -12,9 +12,12 @@
  */
 
 #include "AVLTree.h"
+
+#include <string>
+#include <iostream>
 #include <stdlib.h>
 #include <algorithm>
-#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -37,32 +40,16 @@ AVLTree<DATA, KEY>::~AVLTree() {
 }
 
 
-template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::print(PrintOrder order, ostream& out) {
-
-    switch(order) {
-        case IN:
-            recurInOrder(m_root, out);
-            break;
-        case PRE:
-            recurPreOrder(m_root, out);
-            break;
-        case POST:
-            recurPostOrder(m_root, out);
-            break;
-        case LEVEL:
-            break;
-    }
-
-    out << endl;
-}
-
 
 // This insert function allows us to call the recursive function while only knowing
 // the key and the data.
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::insert(KEY key, DATA data) {
-    recursiveInsert(key, data, m_root);
+    if(m_root == NULL) {
+        m_root = new AVLNode<DATA, KEY>(key, data);
+    } else {
+        recursiveInsert(key, data, m_root);
+    }
 }
 
 
@@ -73,7 +60,7 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, AVLN
 
     if(currNode == NULL) {
 
-        // We finally reached where the node is supposed to go so we create it and return it.
+        // We finally reached where th enode is supposed to go so we create it and return it.
         currNode = new AVLNode<DATA, KEY>(key, data);
         return currNode;
 
@@ -100,10 +87,10 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, AVLN
 
         }
 
-    } else if(key > currNode->key) {
+    } else if(key > currNode->m_key) {
 
         // Recursive call
-        currNode->m_right = recursiveInsert(key, data, currNode->right);
+        currNode->m_right = recursiveInsert(key, data, currNode->m_right);
 
         // The initializer for AVLNode has no way of finding the parent.
         currNode->m_right->m_parent = currNode;
@@ -122,14 +109,16 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveInsert(KEY key, DATA data, AVLN
 
         }
 
+    } else {
+
+        // Need  to return something if it's equal to despite that never happening
+        // based from project specs.
+        return currNode;
+
     }
 
-    // Need  to return something if it's equal to despite that never happening
-    // based from project specs.
-    return currNode;
-
-
 }
+
 
 
 
@@ -178,9 +167,40 @@ AVLNode<DATA, KEY>* AVLTree<DATA, KEY>::recursiveSearch(KEY key, AVLNode<DATA, K
 }
 
 
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::print(PrintOrder order) {
+
+    stringstream stream;
+
+    switch(order) {
+        case IN:
+            recurInOrder(m_root, stream);
+            break;
+        case PRE:
+            recurPreOrder(m_root, stream);
+            break;
+        case POST:
+            recurPostOrder(m_root, stream);
+            break;
+        case LEVEL:
+            break;
+    }
+
+    cout << stream.str();
+
+    cout << endl;
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// These are the recursive printing functions that print all //
+// the information out in a recursive manner.                //
+///////////////////////////////////////////////////////////////
+
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
 
     if(currNode == NULL) {
         return;
@@ -200,7 +220,9 @@ void AVLTree<DATA, KEY>::recurPreOrder(AVLNode<DATA, KEY>* currNode, ostream& ou
 
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
+
+    cerr << currNode->m_data << endl;
 
     if(currNode == NULL) {
         return;
@@ -220,7 +242,9 @@ void AVLTree<DATA, KEY>::recurInOrder(AVLNode<DATA, KEY>* currNode, ostream& out
 
 
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, ostream& out) {
+void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out) {
+
+    cerr << currNode->m_data << endl;
 
     if(currNode == NULL) {
         return;
@@ -238,6 +262,11 @@ void AVLTree<DATA, KEY>::recurPostOrder(AVLNode<DATA, KEY>* currNode, ostream& o
 
 }
 
+
+///////////////////////////////////////////////////////////////
+// These are the rotation functions that perform operations  //
+// on the tree.                                              //
+///////////////////////////////////////////////////////////////
 
 
 template <typename DATA, typename KEY>
@@ -294,22 +323,17 @@ void AVLTree<DATA, KEY>::rightRotate(AVLNode<DATA, KEY>* pivot) {
 
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::leftRightRotate(AVLNode<DATA, KEY>* pivot) {
-
     leftRotate(pivot);
     rightRotate(pivot);
-
 }
 
 
 
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::rightleftRotate(AVLNode<DATA, KEY>* pivot) {
-
     rightRotate(pivot);
     leftRotate(pivot);
-
 }
-
 
 
 ///////////////////////////////////////////////////////////////

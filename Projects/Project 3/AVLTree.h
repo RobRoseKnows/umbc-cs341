@@ -23,7 +23,7 @@ public:
     AVLTree();
     ~AVLTree();
 
-    // Special thanks to Wikipedia to help me understand all these rotations
+    // Special thanks to Wikipedia to help understand all these rotations
     // https://en.wikipedia.org/wiki/Tree_rotation
 
     void leftRotate(AVLNode<DATA, KEY>* pivot);
@@ -31,7 +31,7 @@ public:
     void leftRightRotate(AVLNode<DATA, KEY>* pivot);
     void rightleftRotate(AVLNode<DATA, KEY>* pivot);
 
-    void leftRotate(KEY2 pivotKey);
+    void leftRotate(KEY pivotKey);
     void rightRotate(KEY pivotKey);
     void leftRightRotate(KEY pivotKey);
     void rightLeftRotate(KEY pivotKey);
@@ -45,7 +45,8 @@ public:
     bool remove(KEY key);
     AVLNode<DATA, KEY>* search(KEY key);
 
-    void print(PrintOrder order, ostream& out);
+    void print(PrintOrder order);
+
 
     AVLNode<DATA, KEY>* getRoot() {
         return m_root;
@@ -69,10 +70,9 @@ private:
     // Returns: the node with a given key or NULL if the node is not found under the node.
     AVLNode<DATA, KEY>* recursiveSearch(KEY key, AVLNode<DATA, KEY>* node);
 
-
-    void recurPreOrder(AVLNode<DATA, KEY>* currNode, ostream& out);
-    void recurInOrder(AVLNode<DATA, KEY>* currNode, ostream& out);
-    void recurPostOrder(AVLNode<DATA, KEY>* currNode, ostream& out);
+    void recurPreOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
+    void recurInOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
+    void recurPostOrder(AVLNode<DATA, KEY>* currNode, std::ostream& out);
 };
 
 #include "AVLTree.cpp"
