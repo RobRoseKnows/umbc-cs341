@@ -1,3 +1,6 @@
+#I'm experiencing some issues with this and I'm not sure why. If you make any changes to the code, 
+# in order to run it you'll first have to run clean. I have no idea why as the new files are being
+# created, but they're not reflecting changes to the code.
 CXX = g++
 DEBUG = -g
 FLAGS = -ansi -std=c++98 $(DEBUG)

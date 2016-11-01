@@ -9,13 +9,45 @@
 
 int main(int argc, char** argv) {
 
-    cerr << "Did run" << endl;
+//    cerr << "Did run" << endl;
 
     AVLTree<string, int> tree = AVLTree<string, int>();
+
+    cout << "Inserting 9" << endl;
     tree.insert(9, "9");
-    cerr << "Inserted" << endl;
+    cout << "Expected: 9" << endl;
     tree.print(AVLTreeBase::IN);
+    cout << "Expected: 9" << endl;
     tree.print(AVLTreeBase::PRE);
+
+    cout << "Inserting 2" << endl;
+    tree.insert(2, "2");
+    cout << "Expected 2 9" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 9 2" << endl;
+    tree.print(AVLTreeBase::PRE);
+
+    cout << "Inserting 4" << endl;
+    tree.insert(4, "4");
+    cout << "Expected 2 4 9" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 4 2 9" << endl;
+    tree.print(AVLTreeBase::PRE);
+
+    cout << "Inserting 10" << endl;
+    tree.insert(10, "10");
+    cout << "Expected 2 4 9 10";
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 4 2 9 10";
+    tree.print(AVLTreeBase::PRE);
+
+    cout << "Inserting 8" << endl;
+    tree.insert(8, "8");
+    cout << "Expected 2 4 8 9 10" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 4 2 9 8 10" << endl;
+    tree.print(AVLTreeBase::PRE);
+
 
     return 0;
 }

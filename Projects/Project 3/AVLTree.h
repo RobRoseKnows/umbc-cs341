@@ -23,18 +23,10 @@ public:
     AVLTree();
     ~AVLTree();
 
-    // Special thanks to Wikipedia to help understand all these rotations
-    // https://en.wikipedia.org/wiki/Tree_rotation
-
-    void leftRotate(AVLNode<DATA, KEY>* pivot);
-    void rightRotate(AVLNode<DATA, KEY>* pivot);
-    void leftRightRotate(AVLNode<DATA, KEY>* pivot);
-    void rightleftRotate(AVLNode<DATA, KEY>* pivot);
-
-    void leftRotate(KEY pivotKey);
-    void rightRotate(KEY pivotKey);
-    void leftRightRotate(KEY pivotKey);
-    void rightLeftRotate(KEY pivotKey);
+    AVLNode<DATA, KEY>* leftRotate(AVLNode<DATA, KEY>* pivot);
+    AVLNode<DATA, KEY>* rightRotate(AVLNode<DATA, KEY>* pivot);
+    AVLNode<DATA, KEY>* leftRightRotate(AVLNode<DATA, KEY>* pivot);
+    AVLNode<DATA, KEY>* rightLeftRotate(AVLNode<DATA, KEY>* pivot);
 
 
     void insert(KEY key, DATA data);
