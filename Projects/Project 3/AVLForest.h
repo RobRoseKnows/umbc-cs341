@@ -4,13 +4,18 @@
 /* include your tree implementation  */
 #include <vector>
 #include <string>
+#include <map>
+
 #include "AVLTreeBase.h"
+
+using namespace std;
 
 class AVLForest
 {
   // vector of trees
   // we use a non-templated base class so we can hold all template instantiations
   std::vector<AVLTreeBase*> forest;
+  std::map<int, int> m_idToIndexMap;
 
   // other data memebers
   
@@ -23,7 +28,6 @@ public:
   friend std::ostream& operator << (std::ostream&, AVLForest&);
 
   // other member functions
-
 };
 
 #endif /* _AVLFOREST_H_ */

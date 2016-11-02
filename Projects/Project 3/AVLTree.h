@@ -27,10 +27,10 @@ public:
     AVLTree();
     ~AVLTree();
 
-    Node* rotateLeft(Node* pivot);
     Node* rotateRight(Node* pivot);
-    Node* rotateLeftRight(Node* pivot);
-    Node* rotateRightLeft(Node* pivot);
+    Node* rotateLeft(Node* pivot);
+    Node* rotateLR(Node* pivot);
+    Node* rotateRL(Node* pivot);
 
 
     void insert(KEY key, DATA data);
@@ -48,25 +48,24 @@ public:
         return m_root;
     };
 
-    void setRoot(Node* root) {
-        m_root = root;
-    };
+    AVLTreeBase::PrintOrder m_printOrder;
 protected:
     // Guards against null pointers.
     int safeHeight(Node* node);
 
     int bfactor(Node* node);
+
+    Node* balance(Node*& node, KEY key);
+
 private:
 
     Node* m_root;
-
-    Node* balance(Node* pivot);
 
     // This is the recursive method that inserts the data into the tree and
     // performs the neccessary roations for it to be a proper AVL tree.
     // Takes: A key value, data to use and the node currently on.
     // Results: In a tree with the new node added.
-    Node* recursiveInsert(KEY key, DATA data, Node* node);
+    Node* recursiveInsert(KEY key, DATA data, Node*& node);
 
     // This is the recursive method that searches for and returns the Node into the AVL tree
     // Takes: a key to search for and the current node being searched.

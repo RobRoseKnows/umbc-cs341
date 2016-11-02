@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
     tree.print(AVLTreeBase::IN);
     cout << "Expected: 9" << endl;
     tree.print(AVLTreeBase::PRE);
+    cout << endl;
 
     cout << "Inserting 2" << endl;
     tree.insert(2, "2");
@@ -26,6 +27,7 @@ int main(int argc, char** argv) {
     tree.print(AVLTreeBase::IN);
     cout << "Expected 9 2" << endl;
     tree.print(AVLTreeBase::PRE);
+    cout << endl;
 
     cout << "Inserting 4" << endl;
     tree.insert(4, "4");
@@ -33,6 +35,7 @@ int main(int argc, char** argv) {
     tree.print(AVLTreeBase::IN);
     cout << "Expected 4 2 9" << endl;
     tree.print(AVLTreeBase::PRE);
+    cout << endl;
 
     cout << "Inserting 10" << endl;
     tree.insert(10, "10");
@@ -40,6 +43,7 @@ int main(int argc, char** argv) {
     tree.print(AVLTreeBase::IN);
     cout << "Expected 4 2 9 10" << endl;
     tree.print(AVLTreeBase::PRE);
+    cout << endl;
 
     cout << "Inserting 8" << endl;
     tree.insert(8, "8");
@@ -47,7 +51,40 @@ int main(int argc, char** argv) {
     tree.print(AVLTreeBase::IN);
     cout << "Expected 4 2 9 8 10" << endl;
     tree.print(AVLTreeBase::PRE);
+    cout << endl;
 
+    cout << "Inserting 12" << endl;
+    tree.insert(12, "12");
+    cout << "Expected 2 4 8 9 10 12" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 9 4 2 8 10 12" << endl;
+    tree.print(AVLTreeBase::PRE);
+    cout << endl;
+
+    cout << "Inserting 7" << endl;
+    tree.insert(7, "7");
+    cout << "Expected 2 4 7 8 9 10 12" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 9 4 2 8 7 10 12" << endl;
+    tree.print(AVLTreeBase::PRE);
+    cout << endl;
+
+    cout << "Inserting 5" << endl;
+    tree.insert(5, "5");
+    cout << "Expected 2 4 5 7 8 9 10 12" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 9 4 2 7 5 8 10 12" << endl;
+    tree.print(AVLTreeBase::PRE);
+    cout << endl;
+
+    cout << "Inserting 15" << endl;
+    tree.insert(15, "15");
+    cout << "Expected 2 4 5 7 8 9 10 12 15" << endl;
+    tree.print(AVLTreeBase::IN);
+    cout << "Expected 9 4 2 7 5 8 12 10 15" << endl;
+    tree.print(AVLTreeBase::PRE);
+
+    cerr << "Did run." << endl;
 
     return 0;
 }
