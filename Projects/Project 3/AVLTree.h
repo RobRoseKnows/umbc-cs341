@@ -27,10 +27,9 @@ public:
     AVLTree();
     ~AVLTree();
 
-    Node* rotateRight(Node* pivot);
-    Node* rotateLeft(Node* pivot);
-    Node* rotateLR(Node* pivot);
-    Node* rotateRL(Node* pivot);
+    // Rotates the tree
+    Node* rotateRight(Node* parent);
+    Node* rotateLeft(Node* parent);
 
 
     void insert(KEY key, DATA data);
@@ -39,10 +38,15 @@ public:
     // Takes: A key to remove.
     // Returns: true if it found and removed the node, false otherwise.
     bool remove(KEY key);
+
+    // Searches for a key in a tree and returns a node pointer.
     Node* search(KEY key);
 
-    void print(PrintOrder order);
+    // Print with the tree's order
+    void print(std::ostream& out);
 
+    // Run with a specified order.
+    void print(PrintOrder order, std::ostream& out);
 
     Node* getRoot() {
         return m_root;
@@ -53,8 +57,10 @@ protected:
     // Guards against null pointers.
     int safeHeight(Node* node);
 
+    // Takes the difference between the left node's height and the right node's height
     int bfactor(Node* node);
 
+    // Balance balances the tree for a particular key.
     Node* balance(Node*& node, KEY key);
 
 private:
@@ -72,6 +78,7 @@ private:
     // Returns: the node with a given key or NULL if the node is not found under the node.
     Node* recursiveSearch(KEY key, Node* node);
 
+    // The recursive printing functions
     void recurPreOrder(Node* currNode, std::ostream& out);
     void recurInOrder(Node* currNode, std::ostream& out);
     void recurPostOrder(Node* currNode, std::ostream& out);

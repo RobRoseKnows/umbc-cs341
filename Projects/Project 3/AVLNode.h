@@ -31,7 +31,6 @@ public:
 
     AVLNode* m_left;
     AVLNode* m_right;
-    AVLNode* m_parent;
 
     int calcHeight();
 

@@ -28,7 +28,6 @@ AVLNode<DATA, KEY>::AVLNode(KEY key, DATA data) {
 
     m_left = NULL;
     m_right = NULL;
-    m_parent = NULL;
 }
 
 
@@ -44,7 +43,6 @@ AVLNode<DATA, KEY>::~AVLNode() {
         m_right = NULL;
     }
 
-    m_parent = NULL;
 }
 
 

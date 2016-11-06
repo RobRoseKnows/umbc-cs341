@@ -15,7 +15,7 @@ class AVLForest
   // vector of trees
   // we use a non-templated base class so we can hold all template instantiations
   std::vector<AVLTreeBase*> forest;
-  std::map<int, int> m_idToIndexMap;
+  std::map<int, int[3]> m_idToMetaDataMap;
 
   // other data memebers
   
@@ -28,6 +28,12 @@ public:
   friend std::ostream& operator << (std::ostream&, AVLForest&);
 
   // other member functions
+private:
+  AVLTreeBase::PrintOrder switchPrintOrder(int po);
+
+  AVLTreeBase::DataType switchDataType(int dt);
+
+  AVLTreeBase::NumberType switchNumType(int nt);
 };
 
 #endif /* _AVLFOREST_H_ */

@@ -160,22 +160,6 @@ typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::balance(Node*& node, KEY 
 
     int factor = bfactor(node);
 
-    // If node is right heavy,
-        //then check if right node is left heavy
-    //      If it is,
-                //rotate right node right
-    //      Else rotate this node left
-    // If node is left h
-
-
-//    if(factor < -1) {
-//        if(bfactor(node->m_right) > 0) {
-//            rotateRight(node->m_right);
-//        } else {
-//            rotateLeft(node);
-//        }
-//    }
-
     if (factor > 1) {
         if(key < node->m_left->m_key) {
 
@@ -202,58 +186,6 @@ typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::balance(Node*& node, KEY 
         }
 
     }
-//
-//    // Left Right Case
-//    if (balance > 1 && key > node->left->key)
-//    {
-//        node->left =  leftRotate(node->left);
-//        return rightRotate(node);
-//    }
-//
-//
-//    // Right Right Case
-//     if (balance < -1 && key > node->right->key)
-//         return leftRotate(node);
-//
-//
-//    // Right Left Case
-//    if (balance < -1 && key < node->right->key)
-//    {
-//        node->right = rightRotate(node->right);
-//        return leftRotate(node);
-//    }
-
-
-//    if(factor > 1) { // tree is too left heavy
-//
-//        cerr << "Test -1" << endl;
-//
-//        if(bfactor(node->m_left) > 0) { // left subtree is left heavy
-//            node = rotateRight(node); // rotate
-//        } else {
-//            node = rotateLR(node);
-//        }
-//
-//        if (bfactor(node) > 1) // this tree is left heavy
-//        {
-//            if (bfactor(node->m_left) < 0) // left subtree is right heavy
-//            {
-//                rotateRight(node->m_left);
-//            }
-//
-//        }
-//
-//    } else if(factor < -1) {
-//
-//        cerr << "Test 1" << endl;
-//
-//        if(bfactor(node->m_right) > 0) {
-//            node = rotateLeft(node);
-//        } else {
-//            node = rotateRL(node);
-//        }
-//
-//    }
 
     cout << "Balanced: " << node->m_data << " Height: " << node->m_height << endl;
 
@@ -309,16 +241,7 @@ typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateLeft(Node* parent) 
 
     temp->m_left = parent;
 
-//    if(parent != NULL) {
-//        parent->m_height--;
-//    }
-//
-//    if(temp != NULL) {
-//        temp->m_height++;
-//    }
-
-    // update subtree right
-    // update root
+    // Update the heights
     parent->m_height = std::max(safeHeight(parent->m_left), safeHeight(parent->m_right)) + 1;
     temp->m_height = std::max(safeHeight(temp->m_left), safeHeight(temp->m_right)) + 1;
 
@@ -328,66 +251,21 @@ typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateLeft(Node* parent) 
 
 
 
-template <typename DATA, typename KEY>
-typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateLR(Node* parent) {
-
-    Node* temp = parent->m_left;
-
-    parent->m_left = rotateLeft(temp);
-
-//    if(parent != NULL) {
-//        parent->m_height++;
-//    }
-//
-//    if(temp != NULL) {
-//        temp->m_height--;
-//    }
-
-//    parent->m_height = std::max(safeHeight(parent->m_left), safeHeight(parent->m_right)) + 1;
-//    temp->m_height = std::max(safeHeight(temp->m_left), safeHeight(temp->m_right)) + 1;
-
-    return rotateLL(parent);
-
-}
-
-
-
-template <typename DATA, typename KEY>
-typename AVLTree<DATA, KEY>::Node* AVLTree<DATA, KEY>::rotateRL(Node* parent) {
-
-    Node* temp = parent->m_right;
-
-    parent->m_right = rotateLL(temp);
-
-//    if(pivot != NULL) {
-//        pivot->m_height++;
-//    }
-//
-//    if(pivot->m_left != NULL) {
-//        pivot->m_left->m_height--;
-//    }
-
-//    parent->m_height = std::max(safeHeight(parent->m_left), safeHeight(parent->m_right)) + 1;
-//    temp->m_height = std::max(safeHeight(temp->m_left), safeHeight(temp->m_right)) + 1;
-
-    return rotateLeft(parent);
-
-}
-
-
-
-
 
 
 /********************************************************************
  *                              PRINTING CODE                       *
  ********************************************************************/
 
-
+// Prints using the print order saved.
+template <typename DATA, typename KEY>
+void AVLTree<DATA, KEY>::print(std::ostream& out) {
+    print(m_printOrder, out);
+}
 
 // Prints the tree according to the provided print order.
 template <typename DATA, typename KEY>
-void AVLTree<DATA, KEY>::print(PrintOrder order) {
+void AVLTree<DATA, KEY>::print(PrintOrder order, std::ostream& out) {
 
     stringstream stream;
 
@@ -405,9 +283,9 @@ void AVLTree<DATA, KEY>::print(PrintOrder order) {
             break;
     }
 
-    cout << stream.str();
+    out << stream.str();
 
-    cout << endl;
+    out << endl;
 }
 
 
@@ -419,6 +297,7 @@ void AVLTree<DATA, KEY>::print(PrintOrder order) {
 
 
 
+// The recursive function used to print the tree in pre order.
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::recurPreOrder(Node* currNode, std::ostream& out) {
 
@@ -440,6 +319,7 @@ void AVLTree<DATA, KEY>::recurPreOrder(Node* currNode, std::ostream& out) {
 
 
 
+// The recursive function used to print the tree in order.
 template <typename DATA, typename KEY>
 void AVLTree<DATA, KEY>::recurInOrder(Node* currNode, std::ostream& out) {
 
@@ -449,14 +329,17 @@ void AVLTree<DATA, KEY>::recurInOrder(Node* currNode, std::ostream& out) {
         return;
     }
 
+    // The left
     if(currNode->m_left != NULL) {
-        recurPreOrder(currNode->m_left, out);
+        recurInOrder(currNode->m_left, out);
     }
 
+    // The middle
     out << currNode->m_data << " ";
 
+    // The right
     if(currNode->m_right != NULL) {
-        recurPreOrder(currNode->m_right, out);
+        recurInOrder(currNode->m_right, out);
     }
 
 }
@@ -473,11 +356,11 @@ void AVLTree<DATA, KEY>::recurPostOrder(Node* currNode, std::ostream& out) {
     }
 
     if(currNode->m_left != NULL) {
-        recurPreOrder(currNode->m_left, out);
+        recurPostOrder(currNode->m_left, out);
     }
 
     if(currNode->m_right != NULL) {
-        recurPreOrder(currNode->m_right, out);
+        recurPostOrder(currNode->m_right, out);
     }
 
     out << currNode->m_data << " ";
