@@ -10,8 +10,17 @@
 #include "MinHeap.h"
 #include "MaxHeap.h"
 
+// Predefine the SearchResult class I'm going to use down bellow.
+class SearchResult;
+
 // global variable for type of heap
 std::string heapType = "--max";
+
+// This is an enum representing the two kind of heaps and a variable to hold the type
+// of heap it is in a non-string format.
+enum HEAP_TYPE { MIN_HEAP, MAX_HEAP };
+HEAP_TYPE heapTypeEnum = MIN_HEAP;
+
 
 //forward declare so I can define it below main
 void printGreeting();
@@ -25,7 +34,36 @@ Heap<T, m_size>* BuildHeap(std::vector<T> PinHits, int slots);
 template<class T, int m_size>
 int Hack(Heap<T, m_size>* heap, std::vector<T> PinHits, int totalHits);
 
+
+// My added methods.
+// Returns the heap type as a HEAP_TYPE type because I think that fits the system better.
+HEAP_TYPE getHeapTypeAsEnum(std::string str);
+
+
+// This allows us to add new pin appearances without needing to traverse through the entire
+// list each time. It keeps the vector sorted and only inserts things in the order they're
+// supposed to go.
+//
+// Takes: a list of PinHits and a PinHit to insert
+// Returns: the new vector with the PinHit inserted.
+std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph);
+
+
+// This allows us to find the PinHit we're looking for in O(logn) time, without needing to
+// traverse the entire list each time.
+//
+// Takes: a list of PinHits and the pin to search for
+// Returns: the index of the requested PinHit instance or the next one below it. -1 if list is empty.
+int binarySearchForPin(std::vector<PinHit> list, int pin);
+
+
+
 int main(int argc, char* argv[]) {
+
+    if(argc > 1) {
+        heapType = argv[1];
+        heapTypeEnum = getHeapTypeAsEnum(heapType);
+    }
 
 	printGreeting();
 
@@ -34,7 +72,106 @@ int main(int argc, char* argv[]) {
 
 // prints your name and section
 void printGreeting() {
-	std::cout << "Gene Burchette, Section 05" << std::endl;
+	std::cout << "Robert Rose, Section 03" << std::endl;
+}
+
+
+HEAP_TYPE getHeapTypeAsEnum(std::string str) {
+    if(str[4] == 'x') {
+        heapTypeEnum = MAX_HEAP;
+    } else {
+        heapTypeEnum = MIN_HEAP;
+    }
+}
+
+
+std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
+
+    // Find either the index of the current pin in the list or the index of the one
+    int index = binarySearchForPin(list, ph.GetKey());
+
+    if(index < 0) {
+
+        list.push_back(ph);
+        return list;
+
+    }
+
+    // Check to make sure we shouldn't be adding this to the end of the list.
+    if(index + 1 < list.size()) {
+
+        // Check to see if we found the PinHit or not.
+        if(list[index].GetKey() == ph.GetKey()) {
+
+            // If we actually found the PinHit, increment it.
+            list[index].IncrementHits();
+            return list;
+
+        } else {
+
+            // If we're here it means that we didn't find the pin in the list and we're going to have to add it ourselves.
+
+            if(list[index].GetKey() > ph.GetKey()) {
+
+                // Sanity check to make sure the PinHit below us is actually a lower pin.
+                std::cerr << "Error: binary search returned a pin greater than our current." << std::endl;
+                return list;
+
+            }
+
+            // Because insert adds the element before, we have to add one to the index.
+            list.insert(list.begin() + index + 1, ph);
+            return list;
+
+        }
+
+    } else {
+
+        list.push_back(ph);
+        return list;
+
+    }
+
+}
+
+
+
+// This is an implementation of Binary Search.
+int binarySearchForPin(std::vector<PinHit> list, int pin) {
+
+    // Catch if the array is empty, saves time later on.
+    if(list.size() < 1) {
+        return -1;
+    }
+
+    int left = 0;
+    int right = list.size() - 1;
+
+    int mid;
+
+    while(left <= right) {
+
+       mid = left + (right - left) / 2;
+
+       if(list[mid].GetKey() < pin) {
+
+           left = mid + 1;
+
+       } else if(list[mid].GetKey() > pin) {
+
+           right = mid - 1;
+
+       } else {
+
+           // We found the pin!
+           return mid;
+
+       }
+
+    }
+
+    return mid;
+
 }
 
 // implement these two functions
@@ -46,6 +183,7 @@ template<class T, int m_size>
 Heap<T, m_size>* BuildHeap(std::vector<T> PinHits, int slots) {
 
 }
+
 
 // provided
 template<class T, int m_size>
@@ -67,12 +205,8 @@ int Hack(Heap<T, m_size>* heap, std::vector<T> PinHits, int totalHits) {
 	int successfulHacks = 0;
 
 
-	srand (time(NULL)); // seeds our random generator with the current time
+	srand (1337); // seeds our random generator with the current time
 	int randomNumHits = rand() % totalHits; // generates a random hit between 0 and total hits	
-
-	//TODO: VVVVVVV Remove this at the end VVVVV
-	randomNumHits = 1337; // change this if you want to hardcode in your hits for a specific pin
-
 
 	int curHits = 0; // our variable for crawling
 	int randomIndex = -1; // the index where our new random pinhit lives

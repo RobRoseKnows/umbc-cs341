@@ -1,6 +1,17 @@
 #ifndef HEAP_H_
 #define HEAP_H_
 
+#include<stdexcept>
+#include<string>
+
+class HeapUnderflow : public std::underflow_error {
+
+   public:
+
+   HeapUnderflow(const std::string& what) : std::underflow_error(what) { }
+
+} ;
+
 template<class T, int m_size> class Heap{
 
 	public:
@@ -15,15 +26,29 @@ template<class T, int m_size> class Heap{
 		void PercolateUp(int index);
 		void PercolateDown(int index);
 
-		// student-made functions below
-
 	protected:
 
 		// UML-required member variables
 		// Doc says we can promote from private to protected if we override
 		T* m_array;
+		int m_currentSize;
 
-		// student-made member variables
+		static const int ROOT_INDEX = 1;
+
+        T* GetRoot();
+
+        T* GetLeftChild(int pin);
+        T* GetRightChild(int pin);
+        T* GetParent(int pin);
+
+        int GetLeftChildIndex(int index);
+        int GetRightChildIndex(int index);
+        int GetParentIndex(int index);
+
+
+        int FindIndex(int pin);
+
+        bool isEmpty();
 
 };
 

@@ -21,6 +21,8 @@ public:
     // The copy constructor required for Hack()
     MinHeap(const Heap<T, m_size> heap) { Heap(heap); };
 
+    void PercolateUp(int index);
+    void PercolateDown(int index);
 };
 
 

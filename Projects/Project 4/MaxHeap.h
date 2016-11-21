@@ -21,6 +21,10 @@ public:
     // The copy constructor is required for Hack()
     MaxHeap(const Heap<T, m_size> heap);
 
+
+    void PercolateUp(int index);
+    void PercolateDown(int index);
+
 };
 
 #endif /* MAXHEAP_H_ */
