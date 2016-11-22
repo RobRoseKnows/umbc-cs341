@@ -20,11 +20,6 @@ MaxHeap<T, m_size>::MaxHeap() {
 
 }
 
-template<class T, int m_size>
-MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size>& copyHeap) {
-    typename Heap<T, m_size>::Heap(copyHeap);
-}
-
 
 
 // Code taken from the class notes.

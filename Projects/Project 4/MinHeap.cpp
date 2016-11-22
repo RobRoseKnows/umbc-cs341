@@ -18,11 +18,6 @@ MinHeap<T, m_size>::MinHeap() {
     typename Heap<T, m_size>::Heap();
 }
 
-template<class T, int m_size>
-MinHeap<T, m_size>::MinHeap(const Heap<T, m_size>& copyHeap) {
-    typename Heap<T, m_size>::Heap(copyHeap);
-}
-
 
 
 // Code taken from class notes

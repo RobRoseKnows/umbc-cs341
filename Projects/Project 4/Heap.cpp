@@ -5,21 +5,19 @@
 
 template<class T, int m_size>
 Heap<T, m_size>::Heap() {
-    m_array[m_size + 1];
-    m_currentSize = 0;
+    this->m_currentSize = 0;
 }
 
 
 
 
 template<class T, int m_size>
-Heap<T, m_size>::Heap(const Heap<T, m_size>& copyHeap) {
-    m_array[m_size + 1];
+Heap<T, m_size>::Heap(const Heap<T, m_size>& originHeap) {
 
-    m_currentSize = copyHeap.m_currentSize;
+    this->m_currentSize = originHeap.m_currentSize;
 
-    for(int i = 0; i <= copyHeap.m_currentSize; i++) {
-        m_array[i] = copyHeap.m_array[i];
+    for(int i = 0; i <= originHeap.m_currentSize; i++) {
+        this->m_array[i] = originHeap.m_array[i];
     }
 }
 
@@ -28,9 +26,9 @@ Heap<T, m_size>::Heap(const Heap<T, m_size>& copyHeap) {
 template<class T, int m_size>
 bool Heap<T, m_size>::Contains(const T& needle) const {
 
-    for(int i = ROOT_INDEX; i < m_currentSize + 1; i++) {
+    for(int i = ROOT_INDEX; i < this->m_currentSize + 1; i++) {
 
-        if(m_array[i] == needle) {
+        if(this->m_array[i] == needle) {
             return true;
         }
 
@@ -45,10 +43,10 @@ bool Heap<T, m_size>::Contains(const T& needle) const {
 template<class T, int m_size>
 const T* Heap<T, m_size>::Find(const T& needle) const {
 
-    for(int i = ROOT_INDEX; i < m_currentSize + 1; i++) {
+    for(int i = ROOT_INDEX; i < this->m_currentSize + 1; i++) {
 
-        if(m_array[i] == needle) {
-            return m_array[i];
+        if(this->m_array[i] == needle) {
+            return this->m_array[i];
         }
 
     }
@@ -67,14 +65,14 @@ T& Heap<T, m_size>::Remove() {
     T* toReturn = m_array[ROOT_INDEX];
 
     // Move the node at the rear to the front and sets the rear node to NULL.
-    m_array[ROOT_INDEX] = m_array[m_currentSize];
-    m_array[m_currentSize] = NULL;
+    this->m_array[ROOT_INDEX] = this->m_array[m_currentSize];
+    this->m_array[m_currentSize] = NULL;
 
-    m_currentSize--;
+    this->m_currentSize--;
 
     PercolateDown(ROOT_INDEX);
 
-    return toReturn;
+    return *toReturn;
 
 }
 
@@ -87,9 +85,9 @@ void Heap<T, m_size>::Insert(T& insertable) {
         throw HeapOverflow("The heap is at max capacity.");
     }
 
-    m_currentSize++;
+    this->m_currentSize++;
 
-    m_array[m_currentSize] = &insertable;
+    this->m_array[m_currentSize] = &insertable;
 
     PercolateUp(m_currentSize);
 
@@ -135,7 +133,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
 
     // Saving the child allows us to save function calls by sacrificing a little memory
     int child = this->GetLeftChildIndex(index);
-    T tmp = this->m_array[ index ];
+    T* tmp = this->m_array[ index ];
 
     for( ;
             child <= this->m_currentSize;              // Start by checking the left side if
@@ -147,7 +145,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
         // Check to see if the right child is less than the left child.
         if(
                 child != this->m_currentSize &&                                             // Make sure we won't go out of bounds
-                this->m_array[ child + 1 ]->CompareTo(this->m_array[ child ]) < 0 ) {        // Check if right is less than left
+                this->m_array[ child + 1 ]->CompareTo(*(this->m_array[ child ])) < 0 ) {        // Check if right is less than left
 
             // If it is, we want to switch the current node with that side so lets add 1.
             child++;
@@ -155,7 +153,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
         }
 
         // If we should continue percolating down.
-        if( tmp.CompareTo(this->m_array[ child ]) > 0 ) {
+        if( tmp->CompareTo(*(this->m_array[ child ])) > 0 ) {
 
             this->m_array[ index ] = this->m_array[ child ];
 

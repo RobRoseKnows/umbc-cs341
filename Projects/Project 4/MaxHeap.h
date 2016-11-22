@@ -19,7 +19,7 @@ public:
     MaxHeap();
 
     // The copy constructor is required for Hack()
-    MaxHeap(const Heap<T, m_size>& heap);
+    MaxHeap(const Heap<T, m_size>& heap) : Heap<T, m_size>::Heap(heap) {};
 
 
     // This is used in adding a new item to the heap. It goes up through the heap

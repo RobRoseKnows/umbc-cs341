@@ -66,7 +66,14 @@ int main(int argc, char* argv[]) {
 	printGreeting();
 
 	int totalPins = 0;
-	std::vector<PinHit> list = ReadPins(argv[2], &totalPins);
+	std::vector<PinHit> list = ReadPins(argv[1], &totalPins);
+
+	std::cerr << "List: ";
+	for(int i = 0; i < list.size(); i++) {
+	    std::cerr << list.at(i).GetKey() << " ";
+	}
+	std::cerr << std::endl;
+
 	Heap<PinHit, 10000>* heap = BuildHeap<PinHit, 10000>(list, totalPins);
 
 	int successes = Hack(heap, list, totalPins);
@@ -95,8 +102,6 @@ std::vector<PinHit> ReadPins(char* fileName, int* totalHits) {
     while(in >> nextPin) {
 
         PinHit newPH(nextPin, 0);
-
-        insertSortWise(list, newPH);
 
         (*totalHits)++;
 
@@ -167,13 +172,13 @@ void insertSortWise(std::vector<PinHit>& list, PinHit ph) {
 
             // If we're here it means that we didn't find the pin in the list and we're going to have to add it ourselves.
 
-            if(list[index].GetKey() > ph.GetKey()) {
-
-                // Sanity check to make sure the PinHit below us is actually a lower pin.
-                std::cerr << "Error: binary search returned a pin greater than our current." << std::endl;
-                return;
-
-            }
+//            if(list[index].GetKey() > ph.GetKey()) {
+//
+//                // Sanity check to make sure the PinHit below us is actually a lower pin.
+//                std::cerr << "Error: binary search returned a pin greater than our current." << std::endl;
+//                return;
+//
+//            }
 
             // Because insert adds the element before, we have to add one to the index.
             list.insert(list.begin() + index + 1, ph);
