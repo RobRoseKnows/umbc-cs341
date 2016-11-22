@@ -14,12 +14,12 @@
 #include "Heap.h"
 
 template<class T, int m_size>
-class MinHeap : Heap<T, m_size> {
+class MinHeap : public Heap<T, m_size> {
 public:
     MinHeap();
 
     // The copy constructor required for Hack()
-    MinHeap(const Heap<T, m_size> heap);
+    MinHeap(const Heap<T, m_size>& heap);
 
     // This is used in adding a new item to the heap. It goes up through the heap
     // to make sure the maximum is at the top.

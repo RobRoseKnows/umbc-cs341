@@ -15,12 +15,12 @@
 
 template<class T, int m_size>
 MinHeap<T, m_size>::MinHeap() {
-    Heap<T, m_size>::Heap();
+    typename Heap<T, m_size>::Heap();
 }
 
 template<class T, int m_size>
-MinHeap<T, m_size>::MinHeap(const Heap<T, m_size> heap) {
-    Heap<T, m_size>::Heap(heap);
+MinHeap<T, m_size>::MinHeap(const Heap<T, m_size>& copyHeap) {
+    typename Heap<T, m_size>::Heap(copyHeap);
 }
 
 

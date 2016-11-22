@@ -13,9 +13,14 @@ Heap<T, m_size>::Heap() {
 
 
 template<class T, int m_size>
-Heap<T, m_size>::Heap(const Heap<T, m_size>& origHeap) {
-    m_array = origHeap.m_array;
-    m_currentSize = origHeap.m_currentSize;
+Heap<T, m_size>::Heap(const Heap<T, m_size>& copyHeap) {
+    m_array[m_size + 1];
+
+    m_currentSize = copyHeap.m_currentSize;
+
+    for(int i = 0; i <= copyHeap.m_currentSize; i++) {
+        m_array[i] = copyHeap.m_array[i];
+    }
 }
 
 
@@ -59,7 +64,7 @@ T& Heap<T, m_size>::Remove() {
         throw HeapUnderflow("No nodes to remove");
     }
 
-    T& toReturn = m_array[ROOT_INDEX];
+    T* toReturn = m_array[ROOT_INDEX];
 
     // Move the node at the rear to the front and sets the rear node to NULL.
     m_array[ROOT_INDEX] = m_array[m_currentSize];
@@ -84,7 +89,7 @@ void Heap<T, m_size>::Insert(T& insertable) {
 
     m_currentSize++;
 
-    m_array[m_currentSize] = insertable;
+    m_array[m_currentSize] = &insertable;
 
     PercolateUp(m_currentSize);
 
@@ -105,11 +110,11 @@ void Heap<T, m_size>::PercolateUp(int index) {
     // The parent index saved. This means we only have to call another method
     // logn + 1 times vs the 3logn we needed before.
     int parent = this->GetParentIndex(index);
-    T temp = this->m_array[index];
+    T* temp = this->m_array[index];
 
     for( ;
             index >= 1 &&                                   // Make sure we aren't above the top yet
-            temp.CompareTo(this->m_array[ parent ]) < 0;    // If temp is less than the parent, knock us up
+            temp->CompareTo(*(this->m_array[ parent ])) < 0;    // If temp is less than the parent, knock us up
             index = parent ) {                              // Set index to the parent.
 
         parent = this->GetParentIndex(index);
@@ -142,7 +147,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
         // Check to see if the right child is less than the left child.
         if(
                 child != this->m_currentSize &&                                             // Make sure we won't go out of bounds
-                this->m_array[ child + 1 ].CompareTo(this->m_array[ child ]) < 0 ) {        // Check if right is less than left
+                this->m_array[ child + 1 ]->CompareTo(this->m_array[ child ]) < 0 ) {        // Check if right is less than left
 
             // If it is, we want to switch the current node with that side so lets add 1.
             child++;

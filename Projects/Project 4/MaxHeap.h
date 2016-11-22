@@ -14,12 +14,12 @@
 #include "Heap.h"
 
 template<class T, int m_size>
-class MaxHeap : Heap<T, m_size> {
+class MaxHeap : public Heap<T, m_size> {
 public:
     MaxHeap();
 
     // The copy constructor is required for Hack()
-    MaxHeap(const Heap<T, m_size> heap);
+    MaxHeap(const Heap<T, m_size>& heap);
 
 
     // This is used in adding a new item to the heap. It goes up through the heap
@@ -37,5 +37,7 @@ public:
     void PercolateDown(int index);
 
 };
+
+#include "MaxHeap.cpp"
 
 #endif /* MAXHEAP_H_ */

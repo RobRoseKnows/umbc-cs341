@@ -22,13 +22,13 @@ MinHeap.o: MinHeap.cpp MinHeap.h
 	$(CXX) $(FLAGS) -c MinHeap.cpp
 	
 test:
-	./a.out
+	./a.out Input1.txt --max
 
 val:
-	valgrind --leak-check=full ./a.out
+	valgrind --leak-check=full ./a.out $(INPUT) $(FLAG)
 
 run:
-	./a.out --max
+	./a.out $(INPUT) $(FLAG)
 
 clean:
 	rm -f *.o* *~ *.gch

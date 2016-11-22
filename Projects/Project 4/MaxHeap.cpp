@@ -1,3 +1,6 @@
+#ifndef MAXHEAP_CPP_
+#define MAXHEAP_CPP_
+
 /*
  * File:    MaxHeap.cpp
  * Author:  Robert
@@ -13,15 +16,13 @@
 template<class T, int m_size>
 MaxHeap<T, m_size>::MaxHeap() {
 
-    Heap<T, m_size>::Heap();
+    typename Heap<T, m_size>::Heap();
 
 }
 
 template<class T, int m_size>
-MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size> heap) {
-
-    Heap<T, m_size>::Heap(heap);
-
+MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size>& copyHeap) {
+    typename Heap<T, m_size>::Heap(copyHeap);
 }
 
 
@@ -88,3 +89,6 @@ void MaxHeap<T, m_size>::PercolateDown(int index) {
     this->m_array[ index ] = tmp;
 
 }
+
+
+#endif /* MAXHEAP_CPP_ */

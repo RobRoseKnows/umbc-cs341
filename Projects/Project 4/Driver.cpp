@@ -16,11 +16,6 @@ class SearchResult;
 // global variable for type of heap
 std::string heapType = "--max";
 
-// This is an enum representing the two kind of heaps and a variable to hold the type
-// of heap it is in a non-string format.
-enum HEAP_TYPE { MIN_HEAP, MAX_HEAP };
-HEAP_TYPE heapTypeEnum = MIN_HEAP;
-
 
 //forward declare so I can define it below main
 void printGreeting();
@@ -35,18 +30,13 @@ template<class T, int m_size>
 int Hack(Heap<T, m_size>* heap, std::vector<T> PinHits, int totalHits);
 
 
-// My added methods.
-// Returns the heap type as a HEAP_TYPE type because I think that fits the system better.
-HEAP_TYPE getHeapTypeAsEnum(std::string str);
-
-
 // This allows us to add new pin appearances without needing to traverse through the entire
 // list each time. It keeps the vector sorted and only inserts things in the order they're
 // supposed to go.
 //
 // Takes: a list of PinHits and a PinHit to insert
 // Returns: the new vector with the PinHit inserted.
-std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph);
+void insertSortWise(std::vector<PinHit>& list, PinHit ph);
 
 
 // This allows us to find the PinHit we're looking for in O(logn) time, without needing to
@@ -54,18 +44,34 @@ std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph);
 //
 // Takes: a list of PinHits and the pin to search for
 // Returns: the index of the requested PinHit instance or the next one below it. -1 if list is empty.
-int binarySearchForPin(std::vector<PinHit> list, int pin);
+int binarySearchForPin(std::vector<PinHit>& list, int pin);
 
+
+// I used a sorted list for this because it makes it easier to add duplicate pins.
+// Although a non-sorted list could add new pins in O(1) time, it would need O(n)
+// time to check to make sure it doesn't already exist in the list. By putting it
+// in a sorted list and using Binary Search, we can insert things in log(n) time.
 
 
 int main(int argc, char* argv[]) {
 
-    if(argc > 1) {
-        heapType = argv[1];
-        heapTypeEnum = getHeapTypeAsEnum(heapType);
+    std::string fileName;
+
+    if(argc > 2) {
+        heapType = argv[2];
+    } else {
+        return EXIT_FAILURE;
     }
 
 	printGreeting();
+
+	int totalPins = 0;
+	std::vector<PinHit> list = ReadPins(argv[2], &totalPins);
+	Heap<PinHit, 10000>* heap = BuildHeap<PinHit, 10000>(list, totalPins);
+
+	int successes = Hack(heap, list, totalPins);
+	std::cout << successes << std::endl;
+
 
 	return EXIT_SUCCESS;
 }
@@ -76,16 +82,66 @@ void printGreeting() {
 }
 
 
-HEAP_TYPE getHeapTypeAsEnum(std::string str) {
-    if(str[4] == 'x') {
-        heapTypeEnum = MAX_HEAP;
-    } else {
-        heapTypeEnum = MIN_HEAP;
+
+// implement these two functions
+std::vector<PinHit> ReadPins(char* fileName, int* totalHits) {
+
+    std::ifstream in(fileName);
+
+    std::vector<PinHit> list;
+
+    int nextPin;
+
+    while(in >> nextPin) {
+
+        PinHit newPH(nextPin, 0);
+
+        insertSortWise(list, newPH);
+
+        (*totalHits)++;
+
     }
+
+    in.close();
+
+    return list;
+
 }
 
 
-std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
+
+template<class T, int m_size>
+Heap<T, m_size>* BuildHeap(std::vector<T> PinHits, int slots) {
+
+    Heap<T, m_size>* heap;
+
+    if (heapType == "--min") {
+
+        heap = new MinHeap<T, m_size>();
+
+    } else if (heapType == "--max") {
+
+        heap = new MaxHeap<T, m_size>();
+
+    } else {
+
+        heap = new Heap<T, m_size>();
+
+    }
+
+    for(int i = 0; i < PinHits.size(); i++) {
+
+        heap->Insert(PinHits[i]);
+
+    }
+
+    return heap;
+
+}
+
+
+
+void insertSortWise(std::vector<PinHit>& list, PinHit ph) {
 
     // Find either the index of the current pin in the list or the index of the one
     int index = binarySearchForPin(list, ph.GetKey());
@@ -93,7 +149,7 @@ std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
     if(index < 0) {
 
         list.push_back(ph);
-        return list;
+        return;
 
     }
 
@@ -105,7 +161,7 @@ std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
 
             // If we actually found the PinHit, increment it.
             list[index].IncrementHits();
-            return list;
+            return;
 
         } else {
 
@@ -115,20 +171,20 @@ std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
 
                 // Sanity check to make sure the PinHit below us is actually a lower pin.
                 std::cerr << "Error: binary search returned a pin greater than our current." << std::endl;
-                return list;
+                return;
 
             }
 
             // Because insert adds the element before, we have to add one to the index.
             list.insert(list.begin() + index + 1, ph);
-            return list;
+            return;
 
         }
 
     } else {
 
         list.push_back(ph);
-        return list;
+        return;
 
     }
 
@@ -137,7 +193,7 @@ std::vector<PinHit> insertSortWise(std::vector<PinHit> list, PinHit ph) {
 
 
 // This is an implementation of Binary Search.
-int binarySearchForPin(std::vector<PinHit> list, int pin) {
+int binarySearchForPin(std::vector<PinHit>& list, int pin) {
 
     // Catch if the array is empty, saves time later on.
     if(list.size() < 1) {
@@ -174,15 +230,7 @@ int binarySearchForPin(std::vector<PinHit> list, int pin) {
 
 }
 
-// implement these two functions
-std::vector<PinHit> ReadPins(char* fileName, int* totalHits) {
 
-}
-
-template<class T, int m_size>
-Heap<T, m_size>* BuildHeap(std::vector<T> PinHits, int slots) {
-
-}
 
 
 // provided
