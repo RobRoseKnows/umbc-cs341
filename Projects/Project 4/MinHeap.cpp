@@ -29,7 +29,7 @@ MinHeap<T, m_size>::MinHeap(const Heap<T, m_size> heap) {
 
 
 template<class T, int m_size>
-void Heap<T, m_size>::PercolateUp(int index) {
+void MinHeap<T, m_size>::PercolateUp(int index) {
 
     if(index == 0) {
         return;
@@ -56,7 +56,7 @@ void Heap<T, m_size>::PercolateUp(int index) {
 
 // Code taken from the class notes
 template<class T, int m_size>
-void Heap<T, m_size>::PercolateDown(int index) {
+void MinHeap<T, m_size>::PercolateDown(int index) {
 
     int child;
     T tmp = m_array[ index ];
@@ -67,7 +67,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
         child = index * 2;
 
         // Check to see if the right child is less than the left child.
-        if( child != m_currentSize && m_array[ child + 1 ] < m_array[ child ] )
+        if( child != m_currentSize && m_array[ child + 1 ].CompareTo(m_array[ child ]) < 0 )
             child++;
 
         // If we should continue percolating down.

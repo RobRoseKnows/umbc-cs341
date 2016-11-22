@@ -85,7 +85,7 @@ template<class T, int m_size>
 T* Heap<T,m_size>::GetLeftChild(int pin) {
 
     int indexCurr = FindIndex(pin);
-    int indexChild = indexCurr * 2;
+    int indexChild = GetLeftChildIndex(indexCurr);
 
     return m_array[indexChild];
 
@@ -96,7 +96,7 @@ template<class T, int m_size>
 T* Heap<T,m_size>::GetRightChild(int pin) {
 
     int indexCurr = FindIndex(pin);
-    int indexChild = indexCurr * 2 + 1;
+    int indexChild = GetRightChildIndex(indexCurr);
 
     return m_array[indexChild];
 
@@ -107,29 +107,29 @@ template<class T, int m_size>
 T* Heap<T,m_size>::GetParent(int pin) {
 
     int indexCurr = FindIndex(pin);
-    int indexChild = indexCurr / 2;
+    int indexParent = GetParentIndex(indexCurr);
 
-    return m_array[indexChild];
+    return m_array[indexParent];
 
 }
 
 
 template<class T, int m_size>
-int Heap<T,m_size>::GetLeftChildIndex(int index) {
+int Heap<T,m_size>::GetLeftChildIndex(int index) const {
 
     return index * 2;
 
 }
 
 template<class T, int m_size>
-int Heap<T,m_size>::GetRightChildIndex(int index) {
+int Heap<T,m_size>::GetRightChildIndex(int index) const {
 
     return index * 2 + 1;
 
 }
 
 template<class T, int m_size>
-int Heap<T,m_size>::GetParentIndex(int index) {
+int Heap<T,m_size>::GetParentIndex(int index) const {
 
     return index / 2;
 

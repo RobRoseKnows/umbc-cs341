@@ -14,7 +14,7 @@
 #include "Heap.h"
 
 template<class T, int m_size>
-class MinHeap : public Heap {
+class MinHeap : Heap<T, m_size> {
 public:
     MinHeap();
 

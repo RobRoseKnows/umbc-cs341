@@ -41,9 +41,9 @@ template<class T, int m_size> class Heap{
         T* GetRightChild(int pin);
         T* GetParent(int pin);
 
-        int GetLeftChildIndex(int index);
-        int GetRightChildIndex(int index);
-        int GetParentIndex(int index);
+        int GetLeftChildIndex(int index) const;
+        int GetRightChildIndex(int index) const;
+        int GetParentIndex(int index) const;
 
 
         int FindIndex(int pin);

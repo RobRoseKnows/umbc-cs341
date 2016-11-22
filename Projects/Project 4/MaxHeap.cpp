@@ -13,7 +13,8 @@
 template<class T, int m_size>
 MaxHeap<T, m_size>::MaxHeap() {
 
-    Heap();
+    m_array = T[m_size + 1];
+    m_currentSize = 0;
 
 }
 
@@ -24,33 +25,15 @@ MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size> heap) {
 
 }
 
-template<class T, int m_size>
-void Heap<T, m_size>::PercolateUp(int index) {
 
-//    if(index == 0) {
-//        return;
-//    } else {
-//
-//        int parent = GetParentIndex(index);
-//
-//        if(m_array[index].CompareTo(m_array[parent]) < 0) {
-//
-//            T* temp = m_array[parent];
-//            m_array[parent] = m_array[index];
-//            m_array[index] = temp;
-//            PercolateUp(parent);
-//
-//        } else {
-//
-//            return;
-//
-//        }
-//
-//    }
+
+// Code taken from the class notes.
+template<class T, int m_size>
+void MaxHeap<T, m_size>::PercolateUp(int index) {
 
     T temp = m_array[index];
 
-    for( ; index >= 1 && temp < m_array[ index / 2 ]; index /= 2 )
+    for( ; index >= 1 && temp.CompareTo(m_array[ index / 2 ]) > 0; index /= 2 )
         m_array[ index ] = m_array[ index / 2 ]; // swap, from child to parent
     m_array[ index ] = temp;
 
@@ -61,7 +44,7 @@ void Heap<T, m_size>::PercolateUp(int index) {
 
 // Code taken from the class notes
 template<class T, int m_size>
-void Heap<T, m_size>::PercolateDown(int index) {
+void MaxHeap<T, m_size>::PercolateDown(int index) {
 
     int child;
     T tmp = m_array[ index ];
@@ -71,8 +54,8 @@ void Heap<T, m_size>::PercolateDown(int index) {
         // Left child
         child = index * 2;
 
-        // Check to see if the right child is less than the left child.
-        if( child != m_currentSize && m_array[ child + 1 ] > m_array[ child ] )
+        // Check to see if the right child is greater than the left child.
+        if( child != m_currentSize && m_array[ child + 1 ].CompareTo(m_array[ child ]) > 0 )
             child++;
 
         // If we should continue percolating down.
@@ -86,6 +69,7 @@ void Heap<T, m_size>::PercolateDown(int index) {
 
         }
     }
+
     m_array[ index ] = tmp;
 
 }
