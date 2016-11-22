@@ -13,15 +13,14 @@
 template<class T, int m_size>
 MaxHeap<T, m_size>::MaxHeap() {
 
-    m_array = T[m_size + 1];
-    m_currentSize = 0;
+    Heap<T, m_size>::Heap();
 
 }
 
 template<class T, int m_size>
 MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size> heap) {
 
-    Heap(heap);
+    Heap<T, m_size>::Heap(heap);
 
 }
 
@@ -31,11 +30,18 @@ MaxHeap<T, m_size>::MaxHeap(const Heap<T, m_size> heap) {
 template<class T, int m_size>
 void MaxHeap<T, m_size>::PercolateUp(int index) {
 
-    T temp = m_array[index];
+    T temp = this->m_array[index];
 
-    for( ; index >= 1 && temp.CompareTo(m_array[ index / 2 ]) > 0; index /= 2 )
-        m_array[ index ] = m_array[ index / 2 ]; // swap, from child to parent
-    m_array[ index ] = temp;
+    for( ;
+            index >= 1 &&                                                       // Make sure we aren't above the top yet
+            temp.CompareTo(this->m_array[ this->GetParentIndex(index) ]) > 0;         // If temp is greater than the parent, knock us up
+            index = this->GetParentIndex(index) ) {                             // Set index to the parent.
+
+        this->m_array[ index ] = this->m_array[ this->GetParentIndex(index) ]; // swap, from child to parent
+
+    }
+
+    this->m_array[ index ] = temp;
 
 }
 
@@ -46,22 +52,31 @@ void MaxHeap<T, m_size>::PercolateUp(int index) {
 template<class T, int m_size>
 void MaxHeap<T, m_size>::PercolateDown(int index) {
 
-    int child;
-    T tmp = m_array[ index ];
+    // Saving the child allows us to save function calls by sacrificing a little memory
+    int child = this->GetLeftChildIndex(index);
+    T tmp = this->m_array[ index ];
 
-    for( ; index * 2 <= m_currentSize; index = child )
-    {
-        // Left child
-        child = index * 2;
+    for( ;
+            child <= this->m_currentSize;              // Start by checking the left side if
+            index = child ) {
 
-        // Check to see if the right child is greater than the left child.
-        if( child != m_currentSize && m_array[ child + 1 ].CompareTo(m_array[ child ]) > 0 )
+        // Left child. This saves us function calls
+        child = this->GetLeftChildIndex(index);
+
+        // Check to see if the right child is less than the left child.
+        if(
+                child != this->m_currentSize &&                                             // Make sure we won't go out of bounds
+                this->m_array[ child + 1 ].CompareTo(this->m_array[ child ]) > 0 ) {        // Check if right is greater than left
+
+            // If it is, we want to switch the current node with that side so lets add 1.
             child++;
 
-        // If we should continue percolating down.
-        if( m_array[ child ] > tmp ) {
+        }
 
-            m_array[ index ] = m_array[ child ];
+        // If we should continue percolating down.
+        if( tmp.CompareTo(this->m_array[ child ]) < 0 ) {
+
+            this->m_array[ index ] = this->m_array[ child ];
 
         } else {
 
@@ -70,6 +85,6 @@ void MaxHeap<T, m_size>::PercolateDown(int index) {
         }
     }
 
-    m_array[ index ] = tmp;
+    this->m_array[ index ] = tmp;
 
 }

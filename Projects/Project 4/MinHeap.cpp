@@ -15,42 +15,37 @@
 
 template<class T, int m_size>
 MinHeap<T, m_size>::MinHeap() {
-
-    Heap();
-
+    Heap<T, m_size>::Heap();
 }
 
 template<class T, int m_size>
 MinHeap<T, m_size>::MinHeap(const Heap<T, m_size> heap) {
-    Heap(heap);
+    Heap<T, m_size>::Heap(heap);
 }
 
 
 
-
+// Code taken from class notes
 template<class T, int m_size>
 void MinHeap<T, m_size>::PercolateUp(int index) {
 
-    if(index == 0) {
-        return;
-    } else {
+    // The parent index saved. This means we only have to call another method
+    // logn + 1 times vs the 3logn we needed before.
+    int parent = this->GetParentIndex(index);
+    T temp = this->m_array[index];
 
-        int parent = GetParentIndex(index);
+    for( ;
+            index >= 1 &&                                   // Make sure we aren't above the top yet
+            temp.CompareTo(this->m_array[ parent ]) < 0;    // If temp is less than the parent, knock us up
+            index = parent ) {                              // Set index to the parent.
 
-        if(m_array[index].CompareTo(m_array[parent]) > 0) {
-
-            T* temp = m_array[parent];
-            m_array[parent] = m_array[index];
-            m_array[index] = temp;
-            PercolateUp(parent);
-
-        } else {
-
-            return;
-
-        }
+        parent = this->GetParentIndex(index);
+        this->m_array[ index ] = this->m_array[ parent ];  // swap, from child to parent
 
     }
+
+    this->m_array[ index ] = temp;
+
 
 }
 
@@ -58,22 +53,31 @@ void MinHeap<T, m_size>::PercolateUp(int index) {
 template<class T, int m_size>
 void MinHeap<T, m_size>::PercolateDown(int index) {
 
-    int child;
-    T tmp = m_array[ index ];
+    // Saving the child allows us to save function calls by sacrificing a little memory
+    int child = this->GetLeftChildIndex(index);
+    T tmp = this->m_array[ index ];
 
-    for( ; index * 2 <= m_currentSize; index = child )
-    {
-        // Left child
-        child = index * 2;
+    for( ;
+            child <= this->m_currentSize;              // Start by checking the left side if
+            index = child ) {
+
+        // Left child. This saves us function calls
+        child = this->GetLeftChildIndex(index);
 
         // Check to see if the right child is less than the left child.
-        if( child != m_currentSize && m_array[ child + 1 ].CompareTo(m_array[ child ]) < 0 )
+        if(
+                child != this->m_currentSize &&                                             // Make sure we won't go out of bounds
+                this->m_array[ child + 1 ].CompareTo(this->m_array[ child ]) < 0 ) {        // Check if right is less than left
+
+            // If it is, we want to switch the current node with that side so lets add 1.
             child++;
 
-        // If we should continue percolating down.
-        if( m_array[ child ] < tmp ) {
+        }
 
-            m_array[ index ] = m_array[ child ];
+        // If we should continue percolating down.
+        if( tmp.CompareTo(this->m_array[ child ]) > 0 ) {
+
+            this->m_array[ index ] = this->m_array[ child ];
 
         } else {
 
@@ -81,7 +85,8 @@ void MinHeap<T, m_size>::PercolateDown(int index) {
 
         }
     }
-    m_array[ index ] = tmp;
+
+    this->m_array[ index ] = tmp;
 
 }
 

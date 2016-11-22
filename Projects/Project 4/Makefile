@@ -16,7 +16,7 @@ Heap.o: Heap.cpp Heap.h
 	$(CXX) $(FLAGS) -c Heap.cpp
 
 MaxHeap.o: MaxHeap.cpp MaxHeap.h
-	$(CXX) $(FLAGS) -c MaxValueHeap.cpp
+	$(CXX) $(FLAGS) -c MaxHeap.cpp
 
 MinHeap.o: MinHeap.cpp MinHeap.h
 	$(CXX) $(FLAGS) -c MinHeap.cpp
@@ -28,7 +28,7 @@ val:
 	valgrind --leak-check=full ./a.out
 
 run:
-	./a.out
+	./a.out --max
 
 clean:
 	rm -f *.o* *~ *.gch

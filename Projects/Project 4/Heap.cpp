@@ -5,15 +5,20 @@
 
 template<class T, int m_size>
 Heap<T, m_size>::Heap() {
-    m_array = T[m_size + 1];
+    m_array[m_size + 1];
     m_currentSize = 0;
 }
+
+
+
 
 template<class T, int m_size>
 Heap<T, m_size>::Heap(const Heap<T, m_size>& origHeap) {
     m_array = origHeap.m_array;
     m_currentSize = origHeap.m_currentSize;
 }
+
+
 
 template<class T, int m_size>
 bool Heap<T, m_size>::Contains(const T& needle) const {
@@ -31,6 +36,7 @@ bool Heap<T, m_size>::Contains(const T& needle) const {
 }
 
 
+
 template<class T, int m_size>
 const T* Heap<T, m_size>::Find(const T& needle) const {
 
@@ -44,6 +50,8 @@ const T* Heap<T, m_size>::Find(const T& needle) const {
 
 }
 
+
+
 template<class T, int m_size>
 T& Heap<T, m_size>::Remove() {
 
@@ -53,6 +61,7 @@ T& Heap<T, m_size>::Remove() {
 
     T& toReturn = m_array[ROOT_INDEX];
 
+    // Move the node at the rear to the front and sets the rear node to NULL.
     m_array[ROOT_INDEX] = m_array[m_currentSize];
     m_array[m_currentSize] = NULL;
 
@@ -60,10 +69,18 @@ T& Heap<T, m_size>::Remove() {
 
     PercolateDown(ROOT_INDEX);
 
+    return toReturn;
+
 }
+
+
 
 template<class T, int m_size>
 void Heap<T, m_size>::Insert(T& insertable) {
+
+    if(m_currentSize + 1 > m_size) {
+        throw HeapOverflow("The heap is at max capacity.");
+    }
 
     m_currentSize++;
 
@@ -74,6 +91,87 @@ void Heap<T, m_size>::Insert(T& insertable) {
 }
 
 
+
+
+
+/************************************************************************************
+ * PERCOLATE FUNCTIONS                                                              *
+ ************************************************************************************/
+
+// Code taken from class notes
+template<class T, int m_size>
+void Heap<T, m_size>::PercolateUp(int index) {
+
+    // The parent index saved. This means we only have to call another method
+    // logn + 1 times vs the 3logn we needed before.
+    int parent = this->GetParentIndex(index);
+    T temp = this->m_array[index];
+
+    for( ;
+            index >= 1 &&                                   // Make sure we aren't above the top yet
+            temp.CompareTo(this->m_array[ parent ]) < 0;    // If temp is less than the parent, knock us up
+            index = parent ) {                              // Set index to the parent.
+
+        parent = this->GetParentIndex(index);
+        this->m_array[ index ] = this->m_array[ parent ];  // swap, from child to parent
+
+    }
+
+    this->m_array[ index ] = temp;
+
+
+}
+
+
+
+// Code taken from the class notes
+template<class T, int m_size>
+void Heap<T, m_size>::PercolateDown(int index) {
+
+    // Saving the child allows us to save function calls by sacrificing a little memory
+    int child = this->GetLeftChildIndex(index);
+    T tmp = this->m_array[ index ];
+
+    for( ;
+            child <= this->m_currentSize;              // Start by checking the left side if
+            index = child ) {
+
+        // Left child. This saves us function calls
+        child = this->GetLeftChildIndex(index);
+
+        // Check to see if the right child is less than the left child.
+        if(
+                child != this->m_currentSize &&                                             // Make sure we won't go out of bounds
+                this->m_array[ child + 1 ].CompareTo(this->m_array[ child ]) < 0 ) {        // Check if right is less than left
+
+            // If it is, we want to switch the current node with that side so lets add 1.
+            child++;
+
+        }
+
+        // If we should continue percolating down.
+        if( tmp.CompareTo(this->m_array[ child ]) > 0 ) {
+
+            this->m_array[ index ] = this->m_array[ child ];
+
+        } else {
+
+            break;
+
+        }
+    }
+
+    this->m_array[ index ] = tmp;
+
+}
+
+
+
+
+
+/************************************************************************************
+ * ALL THE GETTER FUNCTIONS THAT RETURN T POINTERS                                  *
+ ************************************************************************************/
 
 
 template<class T, int m_size>
@@ -87,6 +185,10 @@ T* Heap<T,m_size>::GetLeftChild(int pin) {
     int indexCurr = FindIndex(pin);
     int indexChild = GetLeftChildIndex(indexCurr);
 
+    if(indexChild > m_currentSize) {
+        return NULL;
+    }
+
     return m_array[indexChild];
 
 }
@@ -97,6 +199,10 @@ T* Heap<T,m_size>::GetRightChild(int pin) {
 
     int indexCurr = FindIndex(pin);
     int indexChild = GetRightChildIndex(indexCurr);
+
+    if(indexChild > m_currentSize) {
+        return NULL;
+    }
 
     return m_array[indexChild];
 
@@ -113,6 +219,12 @@ T* Heap<T,m_size>::GetParent(int pin) {
 
 }
 
+
+
+
+/************************************************************************************
+ * ALL THE GETTER FUNCTIONS THAT RETURN INDEXES                                     *
+ ************************************************************************************/
 
 template<class T, int m_size>
 int Heap<T,m_size>::GetLeftChildIndex(int index) const {
@@ -136,6 +248,9 @@ int Heap<T,m_size>::GetParentIndex(int index) const {
 }
 
 
+/************************************************************************************
+ * UTILITY FUNCTIONS                                                                *
+ ************************************************************************************/
 
 
 template<class T, int m_size>
@@ -152,7 +267,7 @@ int Heap<T,m_size>::FindIndex(int pin) {
 }
 
 
-
+// Checks to see if the heap is empty.
 template<class T, int m_size>
 bool Heap<T, m_size>::isEmpty() {
     return m_currentSize <= 0;

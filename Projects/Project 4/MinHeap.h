@@ -19,9 +19,20 @@ public:
     MinHeap();
 
     // The copy constructor required for Hack()
-    MinHeap(const Heap<T, m_size> heap) { Heap(heap); };
+    MinHeap(const Heap<T, m_size> heap);
 
+    // This is used in adding a new item to the heap. It goes up through the heap
+    // to make sure the maximum is at the top.
+    //
+    // Takes:       The index of the newly added item.
+    // Returns:     Nothing but the m_array is a fully valid heap.
     void PercolateUp(int index);
+
+    // This is used in deleting the root node. It goes down through the heap bringing
+    // the last node to the point where the heap is valid.
+    //
+    // Takes: the new spot of the last node.
+    // Returns:     Nothing but the heap is fully valid.
     void PercolateDown(int index);
 };
 
