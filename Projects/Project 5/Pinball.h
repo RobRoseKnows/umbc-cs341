@@ -22,7 +22,7 @@ public:
    int find(const char *str) ;
    const char * at(int index) ;
    char * remove(const char *str) ;
-   void printStats() ;
+   void printStats(ostream& out) ;
 
    int size() { return m_size ; }
 
@@ -64,10 +64,18 @@ private:
    // private member functions as needed
 
    int * m_seeds;
-   int m_total_hits;
-   int m_total_primary_slots;
-   int m_total_ejections;
-   int m_max_num_ejections;
+   int * m_primaryHits;
+
+   int m_totalPrimarySlots;
+
+   int m_totalEjections;
+   int m_maxNumEjections;
+
+
+   int* createAuxArray(int index);
+
+   void incrementPrimarySlot(int index);
+   void decrementPrimarySlot(int index);
 
 } ;
 

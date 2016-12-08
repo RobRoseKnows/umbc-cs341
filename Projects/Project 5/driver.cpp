@@ -7,6 +7,7 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <time.h>
 #include <sys/resource.h>
 #include <sys/time.h>
