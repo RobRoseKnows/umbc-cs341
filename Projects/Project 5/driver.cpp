@@ -94,7 +94,7 @@ void test(int size, int reps) {
    stopTime = getmsecs() ;
    printf("Elapsed time = %.3lf milliseconds\n", stopTime - startTime) ;
 
-   PH.printStats() ;
+   PH.printStats(cout) ;
 }
 
 

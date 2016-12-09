@@ -1,8 +1,9 @@
 #ifndef _PINBALL_H_
 #define _PINBALL_H_
 
-#include <string>
 #include <stdexcept>
+#include <stdlib.h>
+#include <string.h>
 using namespace std ;
 
 class PinballHashFull : public std::out_of_range {
@@ -30,6 +31,18 @@ public:
    // public member functions as needed
 
 
+   double getPrimaryAvg();
+   int getPrimaryMax();
+
+   int getSize()                { return m_size; }
+   int getCapacity()            { return m_capacity; }
+   int getDegree()              { return m_degree; }
+   int getEjectLimit()          { return m_ejectLimit; }
+
+   int getTotalPrimarySlots()   { return m_totalPrimarySlots; }
+   int getTotalEjections()      { return m_totalEjections; }
+   int getMaxEjections()        { return m_maxNumEjections; }
+
 private:
  
    static const int DEGREE = 9;
@@ -39,8 +52,8 @@ private:
    int m_size ;       // number of items stored in H
    int m_capacity ;   // number slots allocated in H
 
-   int m_degree = DEGREE;     // use degree assigned to you
-   int m_ejectLimit = EJECTION_LIMIT; // use ejection limit assigned to you
+   int m_degree;     // use degree assigned to you
+   int m_ejectLimit; // use ejection limit assigned to you
 
 
    // Made inline definition of hashCode() so everyone uses
