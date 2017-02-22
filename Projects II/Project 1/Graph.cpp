@@ -21,6 +21,11 @@ Graph::Graph(int n) {
 
     m_size = n ;
     m_adjLists = new AdjListNode*[n] ;
+    
+    // Initialize everything to NULL to fix an error.
+    for(int i = 0; i < m_size; i++) {
+        m_adjLists[i] = NULL;
+    }
 
 }
 
@@ -29,6 +34,11 @@ Graph::Graph(const Graph& G) {
 
     m_size = G.m_size ;
     m_adjLists = new AdjListNode*[m_size] ;
+
+    // Initialize everything to NULL to fix an error.
+    for(int i = 0; i < m_size; i++) {
+        m_adjLists[i] = NULL;
+    }
 
     for(int i = 0; i < m_size; i++) {
         
@@ -47,7 +57,8 @@ Graph::Graph(const Graph& G) {
 
 
 Graph::~Graph() {
-/*
+
+    // Clear the adjacency lists.
     for(int i = 0; i < size(); i++) {
         AdjListNode* on = m_adjLists[i] ;
         while(on != NULL) {
@@ -56,7 +67,7 @@ Graph::~Graph() {
             on = nextTemp;
         }
     }
-*/
+
     delete [] m_adjLists;
 }
 
@@ -68,12 +79,27 @@ const Graph& Graph::operator=(const Graph& rhs) {
         return *this;
     } else {
         
+        // Clear the adjacency lists.   
+        for(int i = 0; i < size(); i++) {
+            AdjListNode* on = m_adjLists[i] ;
+            while(on != NULL) {
+                AdjListNode* nextTemp = on->next;
+                delete on;
+                on = nextTemp;
+            }
+        }
+
         // Get rid of the current adjacency list.
         delete [] m_adjLists;
 
         // Set up the new adjacency list.
         m_size = rhs.m_size;
         m_adjLists = new AdjListNode*[m_size];
+
+        // Initialize everything to NULL to fix an error.
+        for(int i = 0; i < m_size; i++) {
+            m_adjLists[i] = NULL;
+        }
 
         // Go through the right hand side verticies.
         for(int i = 0; i < m_size; i++) {

@@ -94,8 +94,36 @@ int main() {
     printEdges(G) ;
     cerr << endl << endl;
 
-    
 
+    cerr << "--------------------------------" << endl;
+    cerr << "------ Test Assignment Op ------" << endl;
+    cerr << "--------------------------------" << endl;
+    
+    cerr << "Create new Graph G3" << endl; 
+    Graph G3 = Graph(5);
+
+    G3.addEdge(3, 4);
+    G3.addEdge(1, 4);
+    G3.addEdge(0, 3);
+    G3.addEdge(0, 4);
+    G3.addEdge(0, 1);
+    G3.addEdge(1, 2);
+    G3.addEdge(2, 4);
+
+    // Print out the current ones.
+    cerr << "Dump G3:" << endl;
+    G3.dump();
+    cerr << "Dump G:" << endl;
+    G.dump(); 
+
+    cerr << "Set G3 = G" << endl;
+    G3 = G;
+    cerr << "Dump G3:" << endl;
+    G3.dump();
+    cerr << "Dump G:" << endl;
+    G.dump();
+
+    cerr << endl;
 
     //////////////////////////////////////////////////////
     // Testing various edge cases to check for things   //
@@ -128,7 +156,7 @@ int main() {
     Graph::NbIterator nbItr = G.nbBegin(0); 
     while(nbItr != endNbItr) {
         cerr << *nbItr << " ";
-        nrItr++;
+        nbItr++;
     }
 
     cerr << "Is nbItr at end?" << endl;
@@ -168,6 +196,7 @@ int main() {
         printf("(%u, %u) ", edge.first, edge.second);
         egItr++;
     }
+    cerr << endl;
 
 
     // Then lets make sure it'll properly iterate once it gets to the end.
@@ -223,7 +252,7 @@ int main() {
     Gptr1->addEdge(0, 4);
     Gptr1->addEdge(0, 1);
     Gptr1->addEdge(1, 2);
-    Gptr1->addEdge(2, 4);;
+    Gptr1->addEdge(2, 4);
 
     cerr << "Gptr1 Dump:" << endl;
     Gptr1->dump();
@@ -272,8 +301,6 @@ int main() {
 
     cerr << "Deleting Gptr1..." << endl;
     delete Gptr1;
-    cerr << "Deleting Gptr2..." << endl;
-    //delete Gptr2;
     cerr << "Deleting GptrDS1..." << endl;
     delete GptrDS1;;
 }
