@@ -21,7 +21,7 @@ using namespace std ;
 //
 class EOProgram : public runtime_error {
 public:
-   EOProgram(const string& what) : runtime_error(what) { }
+    EOProgram(const string& what) : runtime_error(what) { }
 } ;
 
 
@@ -35,10 +35,10 @@ class Token {
 
 public:
 
-   Token(TokenKind kind=UNKNOWN, int val=0, string txt="" ) ;
-   TokenKind m_kind ;
-   int m_value ;      // if it's a known numeric value
-   string m_text ;    // original text that created this token
+    Token(TokenKind kind=UNKNOWN, int val=0, string txt="" ) ;
+    TokenKind m_kind ;
+    int m_value ;      // if it's a known numeric value
+    string m_text ;    // original text that created this token
 
 } ;
 
@@ -56,10 +56,10 @@ typedef void (* operation_t)(Sally *Sptr) ;
 //
 class SymTabEntry {
 public:
-   SymTabEntry(TokenKind kind=UNKNOWN, int val=0, operation_t fptr=NULL) ;
-   TokenKind m_kind ;
-   int m_value ;            // variables' values are stored here
-   operation_t m_dothis ;   // pointer to a function that does the work
+    SymTabEntry(TokenKind kind=UNKNOWN, int val=0, operation_t fptr=NULL) ;
+    TokenKind m_kind ;
+    int m_value ;            // variables' values are stored here
+    operation_t m_dothis ;   // pointer to a function that does the work
 } ;
 
 
@@ -70,63 +70,77 @@ class Sally {
 
 public:
 
-   Sally(istream& input_stream=cin) ;  // make a Sally Forth interpreter
+    Sally(istream& input_stream=cin) ;  // make a Sally Forth interpreter
 
-   void mainLoop() ;  // do the main interpreter loop
+    void mainLoop() ;  // do the main interpreter loop
 
 
 private:
 
-   // Where to read the input
-   //
-   istream& istrm ;
+    // Where to read the input
+    //
+    istream& istrm ;
 
 
-   // Sally Forth operations to be interpreted
-   //
-   list<Token> tkBuffer ;   
+    // Sally Forth operations to be interpreted
+    //
+    list<Token> tkBuffer ;   
 
 
-   // Sally Forth parameter stack
-   //
-   stack<Token> params ;    
+    // Sally Forth parameter stack
+    //
+    stack<Token> params ;    
 
 
-   // Sally Forth symbol table
-   // keywords and variables are store here
-   //
-   map<string,SymTabEntry> symtab ;   
+    // Sally Forth symbol table
+    // keywords and variables are store here
+    //
+    map<string,SymTabEntry> symtab ;   
 
 
-   // add tokens from input to tkBuffer
-   //
-   bool fillBuffer() ;
+    // add tokens from input to tkBuffer
+    //
+    bool fillBuffer() ;
 
 
-   // give me one more token.
-   // calls fillBuffer() for you if needed.
-   //
-   Token nextToken() ;
+    // give me one more token.
+    // calls fillBuffer() for you if needed.
+    //
+    Token nextToken() ;
 
 
-   // static member functions that do what has
-   // to be done for each Sally Forth operation
-   // 
-   // pointers to these functions are stored 
-   // in the symbol table
-   //
-   static void doDUMP(Sally *Sptr) ;    // for debugging
+    // static member functions that do what has
+    // to be done for each Sally Forth operation
+    // 
+    // pointers to these functions are stored 
+    // in the symbol table
+    //
+    static void doDUMP(Sally *Sptr) ;    // for debugging
 
-   static void doPlus(Sally *Sptr) ;
-   static void doMinus(Sally *Sptr) ;
-   static void doTimes(Sally *Sptr) ;
-   static void doDivide(Sally *Sptr) ;
-   static void doMod(Sally *Sptr) ;
-   static void doNEG(Sally *Sptr) ;
+    // Arithmetic operators.
+    //
 
-   static void doDot(Sally *Sptr) ;
-   static void doSP(Sally *Sptr) ;
-   static void doCR(Sally *Sptr) ;
+    static void doPlus(Sally *Sptr) ;
+    static void doMinus(Sally *Sptr) ;
+    static void doTimes(Sally *Sptr) ;
+    static void doDivide(Sally *Sptr) ;
+    static void doMod(Sally *Sptr) ;
+    static void doNEG(Sally *Sptr) ;
+
+    // Printing operators
+    // 
+
+    static void doDot(Sally *Sptr) ;
+    static void doSP(Sally *Sptr) ;
+    static void doCR(Sally *Sptr) ;
+
+    // Stack operators
+    //
+
+    static void doDUP(Sally *Sptr) ;
+    static void doDROP(Sally *Sptr) ;
+    static void doSWAP(Sally *Sptr) ;
+    static void doROT(Sally *Sptr) ;
 } ;
 
 #endif

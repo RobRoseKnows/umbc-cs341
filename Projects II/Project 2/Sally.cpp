@@ -11,6 +11,7 @@
 #include <stack>
 #include <stdexcept>
 #include <cstdlib>
+#include <cstdio>
 using namespace std ;
 
 #include "Sally.h"
@@ -41,18 +42,26 @@ Sally::Sally(istream& input_stream) :
    istrm(input_stream)  // use member initializer to bind reference
 {
 
-   symtab["DUMP"]    =  SymTabEntry(KEYWORD,0,&doDUMP) ;
+    // Debugging
+    symtab["DUMP"]    =  SymTabEntry(KEYWORD,0,&doDUMP) ;
 
-   symtab["+"]    =  SymTabEntry(KEYWORD,0,&doPlus) ;
-   symtab["-"]    =  SymTabEntry(KEYWORD,0,&doMinus) ;
-   symtab["*"]    =  SymTabEntry(KEYWORD,0,&doTimes) ;
-   symtab["/"]    =  SymTabEntry(KEYWORD,0,&doDivide) ;
-   symtab["%"]    =  SymTabEntry(KEYWORD,0,&doMod) ;
-   symtab["NEG"]  =  SymTabEntry(KEYWORD,0,&doNEG) ;
+    // Arithmetic
+    symtab["+"]     =   SymTabEntry(KEYWORD,0,&doPlus) ;
+    symtab["-"]     =   SymTabEntry(KEYWORD,0,&doMinus) ;
+    symtab["*"]     =   SymTabEntry(KEYWORD,0,&doTimes) ;
+    symtab["/"]     =   SymTabEntry(KEYWORD,0,&doDivide) ;
+    symtab["%"]     =   SymTabEntry(KEYWORD,0,&doMod) ;
+    symtab["NEG"]   =   SymTabEntry(KEYWORD,0,&doNEG) ;
 
-   symtab["."]    =  SymTabEntry(KEYWORD,0,&doDot) ;
-   symtab["SP"]   =  SymTabEntry(KEYWORD,0,&doSP) ;
-   symtab["CR"]   =  SymTabEntry(KEYWORD,0,&doCR) ;
+    // Printing
+    symtab["."]     =   SymTabEntry(KEYWORD,0,&doDot) ;
+    symtab["SP"]    =   SymTabEntry(KEYWORD,0,&doSP) ;
+    symtab["CR"]    =   SymTabEntry(KEYWORD,0,&doCR) ;
+
+    symtab["DUP"]   =   SymTabEntry(KEYWORD,0,&doDUP) ;
+    symtab["DROP"]  =   SymTabEntry(KEYWORD,0,&doDROP) ;
+    symtab["SWAP"]  =   SymTabEntry(KEYWORD,0,&doSWAP) ;
+    symtab["ROT"]   =   SymTabEntry(KEYWORD,0,&doROT) ;
 }
 
 
@@ -398,8 +407,57 @@ void Sally::doCR(Sally *Sptr) {
    cout << endl ;
 }
 
+
+
+//////////////////////////////////////////////////////////
+// Debugging Operator (DUMP)                            //
+//////////////////////////////////////////////////////////
+
+
 void Sally::doDUMP(Sally *Sptr) {
-   // do whatever for debugging
+    // do whatever for debugging
+
+    stack<Token> paramsCopy = Sptr->params;
+
+    cout << endl;
+    cout << "Stack Dumpd. Size: " << paramsCopy.size() << "." << endl;
+    
+    while(!paramsCopy.empty()) {
+       
+        // Get the token at the top 
+        Token nextTk = paramsCopy.top() ;
+        
+        if(nextTk.m_kind == INTEGER) {
+            
+            // If the token is an integer, we should just print it out
+            printf("%d ", nextTk.m_value);
+        
+        } else if(nextTk.m_kind == VARIABLE) {
+            
+            // This code is to let us print out the value of a variable when
+            // we print one out.
+            SymTabEntry var = Sptr->symtab[nextTk.m_text];
+            if(Sptr->symtab.find(nextTk.m_text) != Sptr->symtab.end()) {
+                printf("%s=%d ", nextTk.m_text.c_str(), var.m_value);
+            } else {
+                printf("%s=NULL ", nextTk.m_text.c_str());
+            }
+
+        } else if(nextTk.m_kind == KEYWORD) {
+            
+            // We should put a new line before each keyword so we can easily
+            // tell appart different actions.
+            printf("\n%s", nextTk.m_text.c_str());
+
+        } else {
+           
+            // If the token is anything else, just print it out.
+            printf("%s ", nextTk.m_text.c_str());
+        
+        }
+
+    }
+
 } 
 
 
@@ -408,4 +466,83 @@ void Sally::doDUMP(Sally *Sptr) {
 // Stack Operations                                     //
 //////////////////////////////////////////////////////////
 
-void Sally::
+void Sally::doDUP(Sally *Sptr) {
+
+    if(Sptr->params.size() < 1) {
+        throw out_of_range("Need at least one parameter for DUP");
+    }
+
+    Token p = Sptr->params.top() ;
+
+    if(p.m_kind == INTEGER) {
+        Sptr->params.push( Token(INTEGER, p.m_value, "") );
+    } else {
+        Sptr->params.push( Token(p.m_kind, 0, p.m_text) );
+    }
+
+}
+
+
+
+void Sally::doDROP(Sally *Sptr) {
+
+    if(Sptr->params.size() < 1) {
+        throw out_of_range("Need at least one parameter for DROP") ;
+    }
+
+    Sptr->params.pop();
+
+}
+
+
+
+void Sally::doSWAP(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two parameters for SWAP");
+    }
+
+    // Remove the item at the top of the stack.
+    Token pHigh = Sptr->params.top() ;
+    Sptr->params.pop() ;
+
+    // Remove the item that was below the previous one.
+    Token pLow = Sptr->params.top() ;
+    Sptr->params.pop() ;
+
+    // Swap them.
+    Sptr->params.push(pHigh) ;
+    Sptr->params.push(pLow) ;
+
+}
+
+
+
+void Sally::doROT(Sally *Sptr) {
+
+    if(Sptr->params.size() < 3) {
+        throw out_of_range("Need at least three parameters for ROT.");
+    }
+
+    // Given: A B C ROT
+    // Want: B C A
+    
+    // Grab C and pop it out
+    Token pFromTop = Sptr->params.top();
+    Sptr->params.pop();
+
+    // Grab B and pop it out
+    Token pFromMiddle = Sptr->params.top() ;
+    Sptr->params.pop();
+
+    // Grab A and pop it out
+    Token pFromBottom = Sptr->params.top() ;
+    Sptr->params.pop() ;
+
+    // Add them back in so it's B C A
+    Sptr->params.push(pFromMiddle) ;
+    Sptr->params.push(pFromTop) ;
+    Sptr->params.push(pFromBottom) ;
+
+}
+
