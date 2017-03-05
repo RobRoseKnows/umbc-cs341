@@ -4,6 +4,15 @@
 #
 # CMSC 341 Spring 2017 Project 1
 
+# ATTENTION GRADER: If you want to quickly run the .sally file I provided,
+# simply run `make test` and it'll run it. If you just run `make run`, it
+# will prompt you to choose a file. This is a design decision as it makes the
+# interperter much more practical.
+#
+# Alternatively, you can specify any files you want to run as part of the 
+# $FILES argument variable of `make run`. For example, in order to run my test
+# program, you would run `make run FILES="test.sally"`. Enjoy!
+
 CXX = g++
 DEBUG = -g
 CPPFLAGS = -std=c++98 $(DEBUG)
@@ -28,6 +37,9 @@ driver2: driver2.out
 
 val: all
 	valgrind --leak-check=full ./a.out
+
+test: all
+	./a.out test.sally
 
 run: all
 	./a.out $(FILES)

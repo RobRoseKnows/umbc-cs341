@@ -108,6 +108,16 @@ private:
     //
     Token nextToken() ;
 
+//////////////////////////////////////////////////////////
+// Member variables for IFTHEN Statements               //
+//////////////////////////////////////////////////////////
+    int ifStatements = 0;
+    int endIfStatements = 0;
+
+
+//////////////////////////////////////////////////////////
+// Operators                                            //
+//////////////////////////////////////////////////////////
 
     // static member functions that do what has
     // to be done for each Sally Forth operation
@@ -148,6 +158,60 @@ private:
     static void doSET(Sally *Sptr) ;
     static void doFetch(Sally *Sptr) ;
     static void doStore(Sally *Sptr) ;
+
+    // Comparison operators
+    //
+
+    static void doLessThan(Sally *Sptr) ;
+    static void doLessThanOrEquals(Sally *Sptr) ;
+    static void doEquals(Sally *Sptr) ;
+    static void doNotEquals(Sally *Sptr) ;
+    static void doGreaterThanOrEquals(Sally *Sptr) ;
+    static void doGreaterThan(Sally *Sptr) ;
+
+    // Logic operations
+    //
+
+    static void doAND(Sally *Sptr);
+    static void doOR(Sally *Sptr);
+    static void doNOT(Sally *Sptr);
+
+
+//////////////////////////////////////////////////////////
+// Helper Functions                                     //
+//////////////////////////////////////////////////////////
+
+    static bool numToBool(int num);
+    static int boolToNum(bool val);
+
+    // This method returns true if the given token is an integer and false
+    // otherwise. If it is not an integer, it prints out an error message.
+    // The error message printing is the main purpose of this helper function.
+    // 
+    static bool confirmInteger(const Token &tk);
+   
+    // This is the same thing as confirmInteger (because we store bool's as
+    // integers) but it has different error messages.
+    //
+    static bool confirmBoolean(const Token &tk);
+
+    // This method returns true if the given token is a variable and false
+    // otherwise. If it is not a variable, it prints out an error message.
+    // The error message printing is the main purpose of this helper function.
+    // 
+    static bool confirmVariable(const Token &tk);
+
+    // This returns a string representation of the kind of token provided.
+    //
+    static string tokenKindAsString(TokenKind kind);
+
+    // This returns a string that is either the `m_value` or `m_text` member
+    // of a token depending on what kind of token it is. If it is an Integer
+    // it uses the m_value property and it uses the m_text value otherwise.
+    // This makes it easier to print the messages for the confirm helper
+    // functions found above.
+    //
+    static string tokenIdentifier(const Token &tk);
 } ;
 
 #endif

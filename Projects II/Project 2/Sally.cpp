@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <list>
 #include <stack>
@@ -67,6 +68,18 @@ Sally::Sally(istream& input_stream) :
     symtab["SET"]   =   SymTabEntry(KEYWORD,0,&doSET) ;
     symtab["@"]     =   SymTabEntry(KEYWORD,0,&doFetch) ;
     symtab["!"]     =   SymTabEntry(KEYWORD,0,&doStore) ;
+
+    // Comparison
+    symtab["<"]     =   SymTabEntry(KEYWORD,0,&doLessThan);
+    symtab["<="]    =   SymTabEntry(KEYWORD,0,&doLessThanOrEquals);
+    symtab["=="]    =   SymTabEntry(KEYWORD,0,&doEquals);
+    symtab["!="]    =   SymTabEntry(KEYWORD,0,&doNotEquals);
+    symtab[">="]    =   SymTabEntry(KEYWORD,0,&doGreaterThanOrEquals) ;
+    symtab[">"]     =   SymTabEntry(KEYWORD,0,&doGreaterThan) ;
+
+    symtab["AND"]   =   SymTabEntry(KEYWORD,0,&doAND) ;
+    symtab["OR"]    =   SymTabEntry(KEYWORD,0,&doOR) ;
+    symtab["NOT"]   =   SymTabEntry(KEYWORD,0,&doNOT) ;
 }
 
 
@@ -465,6 +478,8 @@ void Sally::doDUMP(Sally *Sptr) {
 
     }
 
+    cerr << endl;
+
 } 
 
 
@@ -604,18 +619,24 @@ void Sally::doSET(Sally *Sptr) {
     Token pValue = Sptr->params.top();
     Sptr->params.pop() ;
     
-    // We need to check to make sure the variable isn't already in the
-    // symbol table.
-    if(Sptr->symtab.find(pVariable.m_text) == Sptr->symtab.end()) {
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pValue)) {
+    
+        // We need to check to make sure the variable isn't already in the
+        // symbol table.
+        if(Sptr->symtab.find(pVariable.m_text) == Sptr->symtab.end()) {
   
-        SymTabEntry newEntry = SymTabEntry(VARIABLE, pValue.m_value);
-        pair<string, SymTabEntry> newPair = 
-            pair<string, SymTabEntry>(pVariable.m_text, newEntry) ;
-        Sptr->symtab.insert(newPair) ;        
+            SymTabEntry newEntry = SymTabEntry(VARIABLE, pValue.m_value);
+            pair<string, SymTabEntry> newPair = 
+                pair<string, SymTabEntry>(pVariable.m_text, newEntry) ;
+            Sptr->symtab.insert(newPair) ;        
   
-    } else {
-        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
-            << "` already exists in the symbol table." << endl;
+        } else {
+            cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+                << "` already exists in the symbol table." << endl;
+        }
+    
     }
 }
 
@@ -634,18 +655,21 @@ void Sally::doFetch(Sally *Sptr) {
     
     Token pVariable = Sptr->params.top() ;
     Sptr->params.pop();    
+    
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmVariable(pVariable)) {
 
-    if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
+        if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
   
-        SymTabEntry entry = Sptr->symtab[pVariable.m_text];
-        Sptr->params.push(Token(INTEGER, entry.m_value));
+            SymTabEntry entry = Sptr->symtab[pVariable.m_text];
+            Sptr->params.push(Token(INTEGER, entry.m_value));
   
-    } else {
-        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
-            << "` does not exist in the symbol table." << endl;
+        } else {
+            cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+                << "` does not exist in the symbol table." << endl;
+        }
     }
-
-
 }
 
 
@@ -670,16 +694,430 @@ void Sally::doStore(Sally *Sptr) {
     // supposed to set the variable to.
     Token pValue = Sptr->params.top();
     Sptr->params.pop() ;
+
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pValue) & confirmVariable(pVariable)) {
+        // We need to check to make sure the variable is in the symbol table
+        if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
+  
+            SymTabEntry* entry = &Sptr->symtab[pVariable.m_text];
+            entry->m_value = pValue.m_value;
+  
+        } else {
+            cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+                << "` does not exist in the symbol table." << endl;
+        }
+
+    }
+}
+
+
+
+
+//////////////////////////////////////////////////////////
+// Variable Operations                                  //
+//////////////////////////////////////////////////////////
+
+// LHS < RHS
+void Sally::doLessThan(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for < operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
+        // Compare them with subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is greater than or equal to 0, it means the LHS is
+        // greater than the RHS and therefore the statement is false, so we 
+        // set it to 0.
+        if(comp >= 0) {
+            comp = boolToNum(false);
+        } else {
+            comp = boolToNum(true);
+        }
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+    }
+}
+
+
+void Sally::doLessThanOrEquals(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for <= operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
+        
+        // Compare them via subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is greater than 0, it means the LHS is greater than 
+        // the RHS and therefore the statement is false, so we set it to 0.
+        if(comp > 0) {
+            comp = boolToNum(false);
+        } else {
+            comp = boolToNum(true);
+        }
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+
+    }
+}
+
+
+
+void Sally::doEquals(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for == operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
     
-    // We need to check to make sure the variable is in the symbol table
-    if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
-  
-        SymTabEntry* entry = &Sptr->symtab[pVariable.m_text];
-        entry->m_value = pValue.m_value;
-  
+        // Compare via subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is not equal to 0, set it to zero because that means
+        // they are not equal to each other. 
+        if(comp != 0) {
+            comp = boolToNum(false);
+        } else {
+            // If it is equal, we set it to 1. This is kind of backwards as we
+            // switch what is 0 to something else and something else to 0.
+            comp = boolToNum(true);
+        }
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+
+    }
+}
+
+
+
+void Sally::doNotEquals(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for != operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
+        // Compare via subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is equal to 0, set it to zero because that means 
+        // they are equal to each other. Technically we don't actually need 
+        // to set it to 0 but I decided to do so any way for consistencies 
+        // sake.
+        if(comp == 0) {
+            comp = boolToNum(false);
+        } else {
+            // If it isn't equal to 0, we set it to 1 because that means they
+            // are not equal to each other.
+            comp = boolToNum(true);
+        }      
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+    }
+}
+
+
+
+void Sally::doGreaterThanOrEquals(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for >= operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
+        // Compare them via subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is less than 0, it means the LHS is less than the 
+        // RHS.
+        if(comp < 0) {
+            // My reasoning behind using these boolToNum functions is to make
+            // it more clear what each value means.
+            comp = boolToNum(false);
+        } else {
+            comp = boolToNum(true);
+        }
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+
+    }
+}
+
+
+
+void Sally::doGreaterThan(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for > operation.");
+    }    
+
+    Token pRHS = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token pLHS = Sptr->params.top();
+    Sptr->params.pop();
+    
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmInteger(pRHS) & confirmInteger(pLHS)) {
+        // Compare them via subtraction.
+        int comp = pLHS.m_value - pRHS.m_value;
+
+        // If LHS - RHS is less than or equal to 0, it means the LHS is less 
+        // than or equal to the RHS.
+        if(comp <= 0) {
+            comp = boolToNum(false);
+        } else {
+            comp = boolToNum(true);
+        }
+
+        Token answer = Token(INTEGER, comp) ;
+        Sptr->params.push(answer) ;
+    }
+}
+
+
+
+//////////////////////////////////////////////////////////
+// Logic Operators                                      //
+//////////////////////////////////////////////////////////
+
+void Sally::doAND(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for AND operation.");
+    }    
+
+    Token p1 = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token p2 = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmBoolean(p1) & confirmBoolean(p2)) {
+        
+        // Convert the numbers into boolean values so we can use boolean
+        // operations on them.
+        bool p1AsBool = numToBool(p1.m_value);
+        bool p2AsBool = numToBool(p2.m_value);
+
+        // Now do the operation and save it as a bool.
+        bool answer = p1AsBool && p2AsBool; 
+
+        Sptr->params.push(Token(INTEGER, boolToNum(answer)));    
+    }
+}
+
+
+void Sally::doOR(Sally *Sptr) {
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for OR operation.");
+    }    
+
+    Token p1 = Sptr->params.top();
+    Sptr->params.pop();
+
+    Token p2 = Sptr->params.top();
+    Sptr->params.pop();
+
+    // This single appersand is important so that both expressions are
+    // evaluated and therefore both errors will appear if need be. 
+    if(confirmBoolean(p1) & confirmBoolean(p2)) {
+        bool p1AsBool = numToBool(p1.m_value);
+        bool p2AsBool = numToBool(p2.m_value);
+
+        bool answer = p1AsBool || p2AsBool;
+        Sptr->params.push(Token(INTEGER, boolToNum(answer)));
+    }
+}
+
+void Sally::doNOT(Sally *Sptr) {
+
+    if(Sptr->params.size() < 1) {
+        throw out_of_range("Need at least one token for NOT operation.");
+    }    
+
+    Token p1 = Sptr->params.top();
+    Sptr->params.pop();
+
+    if(confirmBoolean(p1)) { 
+        
+        bool p1AsBool = numToBool(p1.m_value);
+
+        bool answer = !p1AsBool;
+        Sptr->params.push(Token(INTEGER, boolToNum(answer)));
+    
+    }
+}
+
+
+//////////////////////////////////////////////////////////
+// Helper Functions                                     //
+//////////////////////////////////////////////////////////
+
+
+// This converts a number into a boolean for us. We are using the definition
+// that 0 is false and everything else is true. I'm going to set true equal
+// to 1 in all defined usages however.
+//
+bool Sally::numToBool(int num) {
+    
+    if(num == 0) {
+        return false;
     } else {
-        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
-            << "` does not exist in the symbol table." << endl;
+        return true;
     }
 
+}
+
+
+
+// This converts boolean values into numbers to store in the stack. Most of
+// the time I use this to avoid having magic numbers.
+//
+int Sally::boolToNum(bool val) {
+    if(val) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+
+// This method returns true if the given token is an integer and false
+// otherwise. If it is not an integer, it prints out an error message.
+// The error message printing is the main purpose of this helper function.
+// 
+bool Sally::confirmInteger(const Token &tk) {
+    if(tk.m_kind == INTEGER) {
+        return true;
+    } else {
+        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+            << ", not an INTEGER." << endl;
+    }
+}
+    
+
+
+// This is the same thing as confirmInteger (because we store bool's as
+// integers) but it has different error messages.
+//
+bool Sally::confirmBoolean(const Token &tk) {
+    if(tk.m_kind == INTEGER) {
+        return true;
+    } else {
+        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+            << ", not an BOOLEAN aka INTEGER." << endl;
+    }
+}
+
+
+
+// This method returns true if the given token is a variable and false
+// otherwise. If it is not a variable, it prints out an error message.
+// The error message printing is the main purpose of this helper function.
+// 
+bool Sally::confirmVariable(const Token &tk) {
+    if(tk.m_kind == VARIABLE) {
+        return true;
+    } else {
+        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+            << ", not a VARIABLE." << endl;
+    }
+}
+
+// This prints out the kind of a token as a string instead of an enum so we
+// can print it out elsewhere.
+string Sally::tokenKindAsString(TokenKind kind) {
+    switch(kind) {
+        case UNKNOWN:
+            return "UNKNOWN";
+        case KEYWORD:
+            return "KEYWORD";
+        case INTEGER:
+            return "INTEGER";
+        case VARIABLE:
+            return "VARIABLE";
+        case STRING:
+            return "STRING";
+        default:
+            return "INVALID KIND";
+    }
+}
+
+// This returns a string that is either the `m_value` or `m_text` member
+// of a token depending on what kind of token it is. If it is an Integer
+// it uses the m_value property and it uses the m_text value otherwise.
+// This makes it easier to print the messages for the confirm helper
+// functions found above.
+//
+string Sally::tokenIdentifier(const Token &tk) {
+    if(tk.m_kind == INTEGER) {
+        ostringstream ss;
+        ss << tk.m_value;
+        return ss.str();
+    } else {
+        return tk.m_text;
+    }
 }
