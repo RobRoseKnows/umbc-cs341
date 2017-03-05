@@ -141,6 +141,13 @@ private:
     static void doDROP(Sally *Sptr) ;
     static void doSWAP(Sally *Sptr) ;
     static void doROT(Sally *Sptr) ;
+
+    // Variable operators
+    //
+
+    static void doSET(Sally *Sptr) ;
+    static void doFetch(Sally *Sptr) ;
+    static void doStore(Sally *Sptr) ;
 } ;
 
 #endif

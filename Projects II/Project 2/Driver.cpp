@@ -17,7 +17,9 @@ using namespace std ;
 int main( int argc, char *argv[] ) {
    
     if(argc < 2) {
-        
+
+        // This is for if the user dosn't use the cool command line
+        // arguments. It'll prompt for a file name.        
         string fname ;
 
         cout << "Enter file name: " ;
@@ -32,19 +34,29 @@ int main( int argc, char *argv[] ) {
 
     } else {
         
+        // This chunk of code allows a user to specify a series of files
+        // they would like to run by adding a series of files after the
+        // command. 
+        // 
+        // This can work when using `make run` if you append FILES="A B C"...
+        // to the end of your command. (Where A, B & C are Sally programs)
         int on = 1;
 
         while(on < argc) {
 
             char* fname = argv[on];
             ifstream ifile(fname) ;
-           
-            cout << "Program: " << fname << endl;
+          
+            
+            // Tell the user that we're running a different program now. 
+            cout << "=== Program: " << fname << " ===" << endl;
 
             Sally S(ifile) ;
             S.mainLoop() ;
             ifile.close() ;
             on++;
+
+            cout << endl;
 
         }
 

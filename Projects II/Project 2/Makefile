@@ -30,7 +30,7 @@ val: all
 	valgrind --leak-check=full ./a.out
 
 run: all
-	./a.out
+	./a.out $(FILES)
 
 fresh: clean run
 

@@ -11,7 +11,6 @@
 #include <stack>
 #include <stdexcept>
 #include <cstdlib>
-#include <cstdio>
 using namespace std ;
 
 #include "Sally.h"
@@ -58,10 +57,16 @@ Sally::Sally(istream& input_stream) :
     symtab["SP"]    =   SymTabEntry(KEYWORD,0,&doSP) ;
     symtab["CR"]    =   SymTabEntry(KEYWORD,0,&doCR) ;
 
+    // Stacks
     symtab["DUP"]   =   SymTabEntry(KEYWORD,0,&doDUP) ;
     symtab["DROP"]  =   SymTabEntry(KEYWORD,0,&doDROP) ;
     symtab["SWAP"]  =   SymTabEntry(KEYWORD,0,&doSWAP) ;
     symtab["ROT"]   =   SymTabEntry(KEYWORD,0,&doROT) ;
+
+    // Variables
+    symtab["SET"]   =   SymTabEntry(KEYWORD,0,&doSET) ;
+    symtab["@"]     =   SymTabEntry(KEYWORD,0,&doFetch) ;
+    symtab["!"]     =   SymTabEntry(KEYWORD,0,&doStore) ;
 }
 
 
@@ -420,7 +425,7 @@ void Sally::doDUMP(Sally *Sptr) {
     stack<Token> paramsCopy = Sptr->params;
 
     cout << endl;
-    cout << "Stack Dumpd. Size: " << paramsCopy.size() << "." << endl;
+    cout << "Stack Dumped. Size: " << paramsCopy.size() << "." << endl;
     
     while(!paramsCopy.empty()) {
        
@@ -430,7 +435,7 @@ void Sally::doDUMP(Sally *Sptr) {
         if(nextTk.m_kind == INTEGER) {
             
             // If the token is an integer, we should just print it out
-            printf("%d ", nextTk.m_value);
+            cerr << nextTk.m_value << " ";
         
         } else if(nextTk.m_kind == VARIABLE) {
             
@@ -438,23 +443,25 @@ void Sally::doDUMP(Sally *Sptr) {
             // we print one out.
             SymTabEntry var = Sptr->symtab[nextTk.m_text];
             if(Sptr->symtab.find(nextTk.m_text) != Sptr->symtab.end()) {
-                printf("%s=%d ", nextTk.m_text.c_str(), var.m_value);
+                cerr << nextTk.m_text.c_str() << "=" << var.m_value << " ";
             } else {
-                printf("%s=NULL ", nextTk.m_text.c_str());
+                cerr << nextTk.m_text << "=NULL ";
             }
 
         } else if(nextTk.m_kind == KEYWORD) {
             
             // We should put a new line before each keyword so we can easily
             // tell appart different actions.
-            printf("\n%s", nextTk.m_text.c_str());
+            cerr << endl << nextTk.m_text << " ";
 
         } else {
            
             // If the token is anything else, just print it out.
-            printf("%s ", nextTk.m_text.c_str());
+            cerr << nextTk.m_text << " ";
         
         }
+
+        paramsCopy.pop();
 
     }
 
@@ -466,6 +473,13 @@ void Sally::doDUMP(Sally *Sptr) {
 // Stack Operations                                     //
 //////////////////////////////////////////////////////////
 
+
+// The DUP operator takes the item at the top of the stack and duplicates
+// it and adds it to the top of the stack.
+//
+// Usage: A DUP
+// Stack: A A
+//
 void Sally::doDUP(Sally *Sptr) {
 
     if(Sptr->params.size() < 1) {
@@ -483,7 +497,10 @@ void Sally::doDUP(Sally *Sptr) {
 }
 
 
-
+// The DROP operator pops the first item on the stack, removing it.
+//
+// Usage: ... A DROP
+// Stack: ...
 void Sally::doDROP(Sally *Sptr) {
 
     if(Sptr->params.size() < 1) {
@@ -495,7 +512,11 @@ void Sally::doDROP(Sally *Sptr) {
 }
 
 
-
+// This swaps the places of the first and second item on the parameter stack.
+//
+// Usage: A B SWAP
+// Stack: B A
+//
 void Sally::doSWAP(Sally *Sptr) {
 
     if(Sptr->params.size() < 2) {
@@ -517,7 +538,13 @@ void Sally::doSWAP(Sally *Sptr) {
 }
 
 
-
+// This rotates the first three items at the top of the stack. It takes the
+// 3rd item in the sack and puts it at the top, shifting the 1st and 2nd
+// down by one.
+//
+// Usage: A B C ROT
+// Stack: B C A
+//
 void Sally::doROT(Sally *Sptr) {
 
     if(Sptr->params.size() < 3) {
@@ -546,3 +573,113 @@ void Sally::doROT(Sally *Sptr) {
 
 }
 
+
+
+//////////////////////////////////////////////////////////
+// Variable Operations                                  //
+//////////////////////////////////////////////////////////
+
+
+// SET initializes a variable with a given value. It creates new variables
+// and cannot be used to set preexisting ones.
+//
+// Usage: <value> <variable> SET
+//
+void Sally::doSET(Sally *Sptr) {
+    // TODO: It might be neccessary to come back and add checks as to whether
+    // or not the variable token we're using is actually a variable.
+
+
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for SET operator.") ;
+    }
+
+    // Get the first item on the stack, it will be the variable we're
+    // supposed to create.
+    Token pVariable = Sptr->params.top() ;
+    Sptr->params.pop() ;
+
+    // Get the second item on the stack, it will be the integer value we're
+    // supposed to intiialize the variable with.
+    Token pValue = Sptr->params.top();
+    Sptr->params.pop() ;
+    
+    // We need to check to make sure the variable isn't already in the
+    // symbol table.
+    if(Sptr->symtab.find(pVariable.m_text) == Sptr->symtab.end()) {
+  
+        SymTabEntry newEntry = SymTabEntry(VARIABLE, pValue.m_value);
+        pair<string, SymTabEntry> newPair = 
+            pair<string, SymTabEntry>(pVariable.m_text, newEntry) ;
+        Sptr->symtab.insert(newPair) ;        
+  
+    } else {
+        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+            << "` already exists in the symbol table." << endl;
+    }
+}
+
+
+// The fetch or `@` operator looks a variable up in the symbol table and
+// adds its value to the top of the stack.
+//
+// Usage: <variable> @
+// Stack: <variable.m_value>
+//
+void Sally::doFetch(Sally *Sptr) {
+
+    if(Sptr->params.size() < 1) {
+        throw out_of_range("Need at least one token for the fetch ");
+    }
+    
+    Token pVariable = Sptr->params.top() ;
+    Sptr->params.pop();    
+
+    if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
+  
+        SymTabEntry entry = Sptr->symtab[pVariable.m_text];
+        Sptr->params.push(Token(INTEGER, entry.m_value));
+  
+    } else {
+        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+            << "` does not exist in the symbol table." << endl;
+    }
+
+
+}
+
+
+// The store or `!` operator stores a value on the stack as a variable in
+// the symbol table.
+//
+// Usage: <value> <variable> !
+// 
+void Sally::doStore(Sally *Sptr) {
+    
+    if(Sptr->params.size() < 2) {
+        throw out_of_range("Need at least two tokens for store operation.");
+    }    
+
+    
+    // Get the first item on the stack, it will be the variable we're
+    // supposed to set.
+    Token pVariable = Sptr->params.top() ;
+    Sptr->params.pop() ;
+
+    // Get the second item on the stack, it will be the integer value we're
+    // supposed to set the variable to.
+    Token pValue = Sptr->params.top();
+    Sptr->params.pop() ;
+    
+    // We need to check to make sure the variable is in the symbol table
+    if(Sptr->symtab.find(pVariable.m_text) != Sptr->symtab.end()) {
+  
+        SymTabEntry* entry = &Sptr->symtab[pVariable.m_text];
+        entry->m_value = pValue.m_value;
+  
+    } else {
+        cerr << "SYNTAX ERROR: The variable `" << pVariable.m_text 
+            << "` does not exist in the symbol table." << endl;
+    }
+
+}
