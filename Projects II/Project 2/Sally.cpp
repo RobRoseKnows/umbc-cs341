@@ -1,5 +1,8 @@
 // File: Sally.cpp
-//
+// Author:  Robert Rose
+// Section: 4
+// E-mail:  robrose2@umbc.edu
+// 
 // CMSC 341 Spring 2017 Project 2
 //
 // Implementation of member functions of Sally Forth interpreter
@@ -80,6 +83,11 @@ Sally::Sally(istream& input_stream) :
     symtab["AND"]   =   SymTabEntry(KEYWORD,0,&doAND) ;
     symtab["OR"]    =   SymTabEntry(KEYWORD,0,&doOR) ;
     symtab["NOT"]   =   SymTabEntry(KEYWORD,0,&doNOT) ;
+
+    symtab["IFTHEN"]=   SymTabEntry(KEYWORD,0,&doIFTHEN) ;
+    symtab["ELSE"]  =   SymTabEntry(KEYWORD,0,&doELSE) ;
+    symtab["ENDIF"] =   SymTabEntry(KEYWORD,0,&doENDIF) ;
+
 }
 
 
@@ -237,67 +245,86 @@ Token Sally::nextToken() {
 //
 //
 void Sally::mainLoop() {
-
-   Token tk ;
-   map<string,SymTabEntry>::iterator it ;
-
-   try {
-      while( 1 ) {
-         tk = nextToken() ;
-
-         if (tk.m_kind == INTEGER || tk.m_kind == STRING) {
-
-            // if INTEGER or STRING just push onto stack
-            params.push(tk) ;
-
-         } else { 
-            it = symtab.find(tk.m_text) ;
+    
+    Token tk ;
+    map<string,SymTabEntry>::iterator it ;
+    
+    m_ifCount       = 0;
+    m_elseCount     = 0;
+    m_endIfCount    = 0;
+    
+    m_isSkip    = false;
+    
+    try {
+        
+        while( 1 ) {
             
-            if ( it == symtab.end() )  {   // not in symtab
-
-               params.push(tk) ;
-
-            } else if (it->second.m_kind == KEYWORD)  {
-
-               // invoke the function for this operation
-               //
-               it->second.m_dothis(this) ;   
+            tk = nextToken() ;
+            
+            if (!m_isSkip) {
+                
+                if (tk.m_kind == INTEGER || tk.m_kind == STRING) {
+                    
+                    // if INTEGER or STRING just push onto stack
+                    params.push(tk) ;
+                
+                } else {
+                    
+                    it = symtab.find(tk.m_text) ;
+            
+                    if ( it == symtab.end() )  {   // not in symtab
+                        
+                        params.push(tk) ;
+                        
+                        // invoke the function for this operation
+                        //
+                        it->second.m_dothis(this) ;   
                
-            } else if (it->second.m_kind == VARIABLE) {
+                    } else if (it->second.m_kind == VARIABLE) {
+                        
+                        // variables are pushed as tokens
+                        //
+                        tk.m_kind = VARIABLE ;
+                        params.push(tk) ;
 
-               // variables are pushed as tokens
-               //
-               tk.m_kind = VARIABLE ;
-               params.push(tk) ;
+                    } else {
 
+                        // default action
+                        //
+                        params.push(tk) ;
+
+                    }
+                
+                } // End if(integer || string)
+            
+            } else if(tokenIsIfKeyword(tk)) {
+                // I created a helper function to check whether or not the
+                // token is a keyword related to IFTHEN statements. I felt
+                // this made it more readable.
+                
+                symtab[tk.m_text].second.m_dothis(this);                
+                
             } else {
+                
+                // Do nothing.
+                
+            } // end if-else
+        } // end while
 
-               // default action
-               //
-               params.push(tk) ;
+    } catch (EOProgram& e) {
 
-            }
-         }
-      }
+        cerr << "End of Program\n" ;
+        if ( params.size() == 0 ) {
+            cerr << "Parameter stack empty.\n" ;
+        } else {
+            cerr << "Parameter stack has " << params.size() << " token(s).\n" ;
+        }
 
-   } catch (EOProgram& e) {
-
-      cerr << "End of Program\n" ;
-      if ( params.size() == 0 ) {
-         cerr << "Parameter stack empty.\n" ;
-      } else {
-         cerr << "Parameter stack has " << params.size() << " token(s).\n" ;
-      }
-
-   } catch (out_of_range& e) {
-
-      cerr << "Parameter stack underflow??\n" ;
-
-   } catch (...) {
-
-      cerr << "Unexpected exception caught\n" ;
-
-   }
+    } catch (out_of_range& e) {
+        cerr << "Parameter stack underflow??\n" ;
+    } catch (...) {
+        cerr << "Unexpected exception caught\n" ;
+    }
 }
 
 
@@ -1008,6 +1035,46 @@ void Sally::doNOT(Sally *Sptr) {
 }
 
 
+
+//////////////////////////////////////////////////////////
+// IFTHEN ELSE Operators                                //
+//////////////////////////////////////////////////////////
+
+void Sally::doIFTHEN(Sally *Sptr) {
+    
+    m_ifCount++;
+    
+    if(!m_isSkip && tokenBooleanValue(Sptr->params.top())) {
+        m_isSkip = true;
+    } else {
+        m_isSkip = false;
+    }
+
+    Sptr->params.pop();
+
+}
+
+
+void Sally::doELSE(Sally *Sptr) {
+
+    m_elseCount++;
+
+    if(m_isSkip && m_ifCount == m_elseCount) {
+        m_isSkip = true;
+    }
+}
+
+
+void Sally::doENDIF(Sally *Sptr) {
+    m_endIfCount++;;
+
+    if(m_isSkip && m_endIfCount == m_ifs) {
+        m_isSkip = false;
+    }
+
+}
+
+
 //////////////////////////////////////////////////////////
 // Helper Functions                                     //
 //////////////////////////////////////////////////////////
@@ -1040,6 +1107,16 @@ int Sally::boolToNum(bool val) {
     }
 }
 
+
+bool Sally::tokenBooleanValue(const Token &tk) {
+    
+    if(confirmBoolean(tk)) {
+        return tk.m_value;
+    } else {
+        return false;
+    }
+
+}
 
 
 // This method returns true if the given token is an integer and false
@@ -1113,6 +1190,7 @@ string Sally::tokenKindAsString(TokenKind kind) {
 // functions found above.
 //
 string Sally::tokenIdentifier(const Token &tk) {
+    
     if(tk.m_kind == INTEGER) {
         ostringstream ss;
         ss << tk.m_value;
@@ -1120,4 +1198,20 @@ string Sally::tokenIdentifier(const Token &tk) {
     } else {
         return tk.m_text;
     }
+
+}
+
+
+bool Sally::tokenIsIfKeyword(const Token &tk) {
+   
+    cout << "Token: " << tk.m_text << endl;
+
+    if(tk.m_kind == KEYWORD) {
+        return (tk.m_text == "IFTHEN") 
+            || (tk.m_text == "ELSE") 
+            || (tk.m_text == "ENDIF");
+    } else {
+        return false;
+    }   
+
 }

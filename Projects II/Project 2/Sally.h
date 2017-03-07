@@ -1,4 +1,8 @@
-// File: Sally.h
+//
+// File:    Sally.h
+// Author:  Robert Rose
+// Section: 4
+// E-mail:  robrose2@umbc.edu
 //
 // CMSC 341 Spring 2017 Project 2
 //
@@ -109,13 +113,6 @@ private:
     Token nextToken() ;
 
 //////////////////////////////////////////////////////////
-// Member variables for IFTHEN Statements               //
-//////////////////////////////////////////////////////////
-    int ifStatements = 0;
-    int endIfStatements = 0;
-
-
-//////////////////////////////////////////////////////////
 // Operators                                            //
 //////////////////////////////////////////////////////////
 
@@ -175,6 +172,24 @@ private:
     static void doAND(Sally *Sptr);
     static void doOR(Sally *Sptr);
     static void doNOT(Sally *Sptr);
+    
+    // If Statements
+    //
+
+    static void doIFTHEN(Sally *Sptr);
+    static void doELSE(Sally *Sptr);
+    static void doENDIF(Sally *Sptr);
+
+
+/////////////////////////////////////////////////////////
+// Member variables for IFTHEN Statements               //
+//////////////////////////////////////////////////////////
+
+    int m_ifCount;
+    int m_elseCount;
+    int m_endIfCount;
+    
+    bool m_isSkip;
 
 
 //////////////////////////////////////////////////////////
@@ -183,6 +198,12 @@ private:
 
     static bool numToBool(int num);
     static int boolToNum(bool val);
+
+    // This method takes a token and confirms whether or not it is a boolean
+    // value. If it is, it returns the boolean value of that token. If it
+    // isn't, it returns false and prints a message.
+    //
+    static bool tokenBooleanValue(const Token &tk);
 
     // This method returns true if the given token is an integer and false
     // otherwise. If it is not an integer, it prints out an error message.
@@ -212,6 +233,8 @@ private:
     // functions found above.
     //
     static string tokenIdentifier(const Token &tk);
+
+    static bool tokenIsIfKeyword(const Token &tk);
 } ;
 
 #endif
