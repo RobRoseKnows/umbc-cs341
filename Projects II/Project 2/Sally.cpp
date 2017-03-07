@@ -19,6 +19,9 @@ using namespace std ;
 
 #include "Sally.h"
 
+// This allows me to quickly disable the debugging statements I insert when
+// testing.
+#define SHOW_DEBUG false
 
 // Basic Token constructor. Just assigns values.
 //
@@ -42,8 +45,17 @@ SymTabEntry::SymTabEntry(TokenKind kind, int val, operation_t fptr) {
 // Adds built-in functions to the symbol table.
 //
 Sally::Sally(istream& input_stream) :
-   istrm(input_stream)  // use member initializer to bind reference
+       istrm(input_stream)  // use member initializer to bind reference
 {
+    if(SHOW_DEBUG) cerr << "Showing Debug Messages..." << endl;
+
+    m_isRecord = false;
+    m_isSkip = false;
+    m_isLoop = false;
+
+    m_ifCount = 0;
+    m_elseCount = 0;
+    m_endIfCount = 0;
 
     // Debugging
     symtab["DUMP"]    =  SymTabEntry(KEYWORD,0,&doDUMP) ;
@@ -88,6 +100,9 @@ Sally::Sally(istream& input_stream) :
     symtab["ELSE"]  =   SymTabEntry(KEYWORD,0,&doELSE) ;
     symtab["ENDIF"] =   SymTabEntry(KEYWORD,0,&doENDIF) ;
 
+    symtab["DO"]    =   SymTabEntry(KEYWORD,0,&doDO) ;
+    symtab["UNTIL"] =   SymTabEntry(KEYWORD,0,&doUNTIL) ;
+
 }
 
 
@@ -106,6 +121,7 @@ Sally::Sally(istream& input_stream) :
 // 
 //
 bool Sally::fillBuffer() {
+ 
    string line ;     // single line of input
    int pos ;         // current position in the line
    int len ;         // # of char in current token
@@ -213,6 +229,7 @@ bool Sally::fillBuffer() {
 
       }
    }
+
 }
 
 
@@ -222,20 +239,52 @@ bool Sally::fillBuffer() {
 // Checks for end-of-file and throws exception 
 //
 Token Sally::nextToken() {
-      Token tk ;
-      bool more = true ;
+    Token tk ;
+    bool more = true ;
 
-      while(more && tkBuffer.empty() ) {
-         more = fillBuffer() ;
-      }
+    do {
+        //do {
+        if(SHOW_DEBUG) cerr << "In nextToken loop" << endl;
+        while(more && tkBuffer.empty() ) {
+            more = fillBuffer() ;
+        }
 
-      if ( !more && tkBuffer.empty() ) {
-         throw EOProgram("End of Program") ;
-      }
+        if ( !more && tkBuffer.empty() && recordingLoop.empty() ) {
+            throw EOProgram("End of Program") ;
+        }
 
-      tk = tkBuffer.front() ;
-      tkBuffer.pop_front() ;
-      return tk ;
+        if(m_isRecord) {
+
+            if(SHOW_DEBUG) cerr << "is recording" << endl;
+            tk = tkBuffer.front();
+            recordingLoop.push_back(tk);
+            tkBuffer.pop_front(); 
+
+        } else if(m_isLoop) {
+
+            if(SHOW_DEBUG) cerr << "Is looping" << endl;
+            tk = recordingLoop.front();
+            recordingLoop.pop_front();
+            recordingLoop.push_back(tk);
+
+        } else {
+        
+            if(SHOW_DEBUG) cerr << "is not looping" << endl;
+            tk = tkBuffer.front() ;
+            tkBuffer.pop_front() ;
+        }
+
+        if(SHOW_DEBUG) cerr << "Token in Next: " << tokenIdentifier(tk) << endl;
+
+        //} while(m_isRecord);
+
+        // While the program is supposed to be skipping and tk isn't a 
+        // ifthen keyword, keep looking for more tokens.
+    } while(!tokenIsIfKeyword(tk) && m_isSkip) ;
+
+
+
+    return tk ;
 }
 
 
@@ -252,63 +301,52 @@ void Sally::mainLoop() {
     m_ifCount       = 0;
     m_elseCount     = 0;
     m_endIfCount    = 0;
-    
-    m_isSkip    = false;
-    
+
     try {
         
         while( 1 ) {
             
-            tk = nextToken() ;
-            
-            if (!m_isSkip) {
-                
-                if (tk.m_kind == INTEGER || tk.m_kind == STRING) {
-                    
-                    // if INTEGER or STRING just push onto stack
-                    params.push(tk) ;
-                
-                } else {
-                    
-                    it = symtab.find(tk.m_text) ;
-            
-                    if ( it == symtab.end() )  {   // not in symtab
-                        
-                        params.push(tk) ;
-                        
-                        // invoke the function for this operation
-                        //
-                        it->second.m_dothis(this) ;   
-               
-                    } else if (it->second.m_kind == VARIABLE) {
-                        
-                        // variables are pushed as tokens
-                        //
-                        tk.m_kind = VARIABLE ;
-                        params.push(tk) ;
+            tk = nextToken() ;  
 
-                    } else {
+            if(SHOW_DEBUG) cerr << "Token: " << tokenIdentifier(tk) << endl;
 
-                        // default action
-                        //
-                        params.push(tk) ;
+            if (tk.m_kind == INTEGER || tk.m_kind == STRING) {
 
-                    }
-                
-                } // End if(integer || string)
-            
-            } else if(tokenIsIfKeyword(tk)) {
-                // I created a helper function to check whether or not the
-                // token is a keyword related to IFTHEN statements. I felt
-                // this made it more readable.
-                
-                symtab[tk.m_text].second.m_dothis(this);                
-                
+                // if INTEGER or STRING just push onto stack
+                params.push(tk) ;
+
             } else {
-                
-                // Do nothing.
-                
-            } // end if-else
+
+                it = symtab.find(tk.m_text) ;
+
+                if ( it == symtab.end() )  {   // not in symtab
+
+                    params.push(tk) ;
+
+                } else if(it->second.m_kind == KEYWORD) {  
+                    // invoke the function for this operation
+                    //
+                    it->second.m_dothis(this) ;   
+                    tk.m_kind = KEYWORD;
+
+                } else if (it->second.m_kind == VARIABLE) {
+
+                    // variables are pushed as tokens
+                    //
+                    tk.m_kind = VARIABLE ;
+                    params.push(tk) ;
+
+                } else {
+
+                    // default action
+                    //
+                    params.push(tk) ;
+
+                }
+
+            } // End if(integer || string)
+            
+          //  cout << "Token: " << tk.m_text << " Kind: " << tokenKindAsString(tk.m_kind) << endl;
         } // end while
 
     } catch (EOProgram& e) {
@@ -322,9 +360,9 @@ void Sally::mainLoop() {
 
     } catch (out_of_range& e) {
         cerr << "Parameter stack underflow??\n" ;
-    } catch (...) {
-        cerr << "Unexpected exception caught\n" ;
-    }
+    }// catch (...) {
+       // cerr << "Unexpected exception caught\n" ;
+    //}
 }
 
 
@@ -466,7 +504,14 @@ void Sally::doDUMP(Sally *Sptr) {
 
     cout << endl;
     cout << "Stack Dumped. Size: " << paramsCopy.size() << "." << endl;
-    
+    cout << "If Count: "    << Sptr->m_ifCount 
+        << " Else Count: "  << Sptr->m_elseCount 
+        << " End Count: "   << Sptr->m_endIfCount << endl;
+    cout << "Skip: "    << Sptr->m_isSkip
+        << " Record: "  << Sptr->m_isRecord
+        << " Loop: "    << Sptr->m_isLoop << endl;
+    cout << "Num in Loop: " << Sptr->recordingLoop.size() << endl;
+
     while(!paramsCopy.empty()) {
        
         // Get the token at the top 
@@ -1042,12 +1087,16 @@ void Sally::doNOT(Sally *Sptr) {
 
 void Sally::doIFTHEN(Sally *Sptr) {
     
-    m_ifCount++;
+    Sptr->m_ifCount++;
+   
+    if(SHOW_DEBUG) cerr << "Top in IF: " << tokenBooleanValue(Sptr->params.top()) << endl;
+
+    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
+        << " ELSE: " << Sptr->m_elseCount 
+            << " END: " << Sptr->m_endIfCount << endl;
     
-    if(!m_isSkip && tokenBooleanValue(Sptr->params.top())) {
-        m_isSkip = true;
-    } else {
-        m_isSkip = false;
+    if(!Sptr->m_isSkip) {
+        Sptr->m_isSkip = !tokenBooleanValue(Sptr->params.top());
     }
 
     Sptr->params.pop();
@@ -1057,22 +1106,58 @@ void Sally::doIFTHEN(Sally *Sptr) {
 
 void Sally::doELSE(Sally *Sptr) {
 
-    m_elseCount++;
+    Sptr->m_elseCount++;
 
-    if(m_isSkip && m_ifCount == m_elseCount) {
-        m_isSkip = true;
+    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
+        << " ELSE: " << Sptr->m_elseCount 
+            << " END: " << Sptr->m_endIfCount << endl;
+    
+    if(Sptr->m_isSkip && Sptr->m_elseCount == Sptr->m_ifCount) {
+        Sptr->m_isSkip = false;
     }
 }
 
 
 void Sally::doENDIF(Sally *Sptr) {
-    m_endIfCount++;;
+    Sptr->m_endIfCount++;
 
-    if(m_isSkip && m_endIfCount == m_ifs) {
-        m_isSkip = false;
+    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
+        << " ELSE: " << Sptr->m_elseCount 
+            << " END: " << Sptr->m_endIfCount << endl;
+
+    if(Sptr->m_endIfCount == Sptr->m_ifCount) {
+        Sptr->m_isSkip = false;
     }
 
 }
+
+
+//////////////////////////////////////////////////////////
+// DO UNTIL Operators                                   //
+//////////////////////////////////////////////////////////
+
+void Sally::doDO(Sally *Sptr) {
+   
+    if(!Sptr->m_isRecord) {
+        Sptr->m_isRecord = true;
+    }
+}
+    
+void Sally::doUNTIL(Sally *Sptr) {
+   
+    if(SHOW_DEBUG) cerr << "Entered UNTIL" << endl;
+
+    Sptr->m_isRecord = false;
+    Sptr->m_isLoop = !numToBool(Sptr->params.top().m_value);
+
+    if(!Sptr->m_isLoop) {
+        Sptr->recordingLoop.clear();
+    }
+
+    Sptr->params.pop();
+
+}
+
 
 
 //////////////////////////////////////////////////////////
@@ -1109,13 +1194,14 @@ int Sally::boolToNum(bool val) {
 
 
 bool Sally::tokenBooleanValue(const Token &tk) {
-    
-    if(confirmBoolean(tk)) {
-        return tk.m_value;
-    } else {
-        return false;
+   
+    if(confirmNotNull(tk)) { 
+        if(confirmBoolean(tk)) {
+            return tk.m_value;
+        } else {
+            return false;
+        }
     }
-
 }
 
 
@@ -1124,12 +1210,14 @@ bool Sally::tokenBooleanValue(const Token &tk) {
 // The error message printing is the main purpose of this helper function.
 // 
 bool Sally::confirmInteger(const Token &tk) {
-    if(tk.m_kind == INTEGER) {
-        return true;
-    } else {
-        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
-            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
-            << ", not an INTEGER." << endl;
+    if(confirmNotNull(tk)) {
+        if(tk.m_kind == INTEGER) {
+            return true;
+        } else {
+            cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+                << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+                << ", not an INTEGER." << endl;
+        }
     }
 }
     
@@ -1138,29 +1226,45 @@ bool Sally::confirmInteger(const Token &tk) {
 // This is the same thing as confirmInteger (because we store bool's as
 // integers) but it has different error messages.
 //
-bool Sally::confirmBoolean(const Token &tk) {
-    if(tk.m_kind == INTEGER) {
-        return true;
-    } else {
-        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
-            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
-            << ", not an BOOLEAN aka INTEGER." << endl;
+bool Sally::confirmBoolean(const Token &tk){
+
+    if(confirmNotNull(tk)) {
+        if(tk.m_kind == INTEGER) {
+            return true;
+        } else {
+            cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+                << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+                << ", not an BOOLEAN aka INTEGER." << endl;
+        }
     }
 }
 
 
+bool Sally::confirmNotNull(const Token &tk) {
+
+    if(&tk != NULL) {
+        return true;
+    } else {
+        cerr << "Invalid token. Token is NULL." << endl;
+    }
+
+}
 
 // This method returns true if the given token is a variable and false
 // otherwise. If it is not a variable, it prints out an error message.
 // The error message printing is the main purpose of this helper function.
 // 
 bool Sally::confirmVariable(const Token &tk) {
-    if(tk.m_kind == VARIABLE) {
-        return true;
-    } else {
-        cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
-            << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
-            << ", not a VARIABLE." << endl;
+    
+    if(confirmNotNull(tk)){
+        if(tk.m_kind == VARIABLE) {
+            return true;
+        } else {
+            cerr << "Incorrect token type. Token `" << tokenIdentifier(tk) 
+                << "` is a(n) `" << tokenKindAsString(tk.m_kind) 
+                << ", not a VARIABLE." << endl;
+        }
+
     }
 }
 
@@ -1190,28 +1294,21 @@ string Sally::tokenKindAsString(TokenKind kind) {
 // functions found above.
 //
 string Sally::tokenIdentifier(const Token &tk) {
-    
-    if(tk.m_kind == INTEGER) {
-        ostringstream ss;
-        ss << tk.m_value;
-        return ss.str();
-    } else {
-        return tk.m_text;
+   
+    if(confirmNotNull(tk)) { 
+        if(tk.m_kind == INTEGER) {
+            ostringstream ss;
+            ss << tk.m_value;
+            return ss.str();
+        } else {
+            return tk.m_text;
+        }
     }
-
 }
 
 
 bool Sally::tokenIsIfKeyword(const Token &tk) {
-   
-    cout << "Token: " << tk.m_text << endl;
-
-    if(tk.m_kind == KEYWORD) {
-        return (tk.m_text == "IFTHEN") 
-            || (tk.m_text == "ELSE") 
-            || (tk.m_text == "ENDIF");
-    } else {
-        return false;
-    }   
+  
+    return (tk.m_text == "IFTHEN") || (tk.m_text == "ELSE") || (tk.m_text == "ENDIF");
 
 }

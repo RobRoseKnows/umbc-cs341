@@ -180,6 +180,12 @@ private:
     static void doELSE(Sally *Sptr);
     static void doENDIF(Sally *Sptr);
 
+    // Do Until Operations
+    //
+
+    static void doDO(Sally *Sptr);
+    static void doUNTIL(Sally *Sptr);
+
 
 /////////////////////////////////////////////////////////
 // Member variables for IFTHEN Statements               //
@@ -191,6 +197,9 @@ private:
     
     bool m_isSkip;
 
+    bool m_isRecord;
+    bool m_isLoop;
+    list<Token> recordingLoop;
 
 //////////////////////////////////////////////////////////
 // Helper Functions                                     //
@@ -235,6 +244,8 @@ private:
     static string tokenIdentifier(const Token &tk);
 
     static bool tokenIsIfKeyword(const Token &tk);
+
+    static bool confirmNotNull(const Token &tk);
 } ;
 
 #endif

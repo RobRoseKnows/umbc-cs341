@@ -1,0 +1,36 @@
+// File: test.sally
+//
+// CMSC 341 Spring 2017 Project 2
+//
+// Sally FORTH source code
+//
+// I testing my code using the FILES arguments I added in make run to run the
+// simpler operation example files in order to test them in addition to
+// running this file which has some custom tests.
+//
+// The command I ran:
+//      make run FILES="example3.sally example4.sally example5.sally example6.sally example7.sally example8.sally test.sally"
+//
+
+//////////////////////////////////////////////////////
+// Custom Code                                      //
+//////////////////////////////////////////////////////
+
+//5 7 > 
+//IFTHEN
+//    ."If then." . CR
+//ELSE 
+//    ."Else." . CR
+//ENDIF
+//."End" . CR
+
+
+0 DO
+
+    1 + 
+    DUP . CR
+    DUP
+10 >= UNTIL
+
+DROP
+
