@@ -57,6 +57,10 @@ Sally::Sally(istream& input_stream) :
     m_elseCount = 0;
     m_endIfCount = 0;
 
+    //m_ifSinceT = 0;
+    //m_elseSinceF = 0;
+    //m_endIfSinceF = 0;
+
     // Debugging
     symtab["DUMP"]    =  SymTabEntry(KEYWORD,0,&doDUMP) ;
 
@@ -242,7 +246,7 @@ Token Sally::nextToken() {
     Token tk ;
     bool more = true ;
 
-    do {
+    //do {
         //do {
         if(SHOW_DEBUG) cerr << "In nextToken loop" << endl;
         while(more && tkBuffer.empty() ) {
@@ -280,7 +284,7 @@ Token Sally::nextToken() {
 
         // While the program is supposed to be skipping and tk isn't a 
         // ifthen keyword, keep looking for more tokens.
-    } while(!tokenIsIfKeyword(tk) && m_isSkip) ;
+    //} while(!tokenIsIfKeyword(tk) && m_isSkip) ;
 
 
 
@@ -303,9 +307,9 @@ void Sally::mainLoop() {
     m_endIfCount    = 0;
 
     try {
-        
+
         while( 1 ) {
-            
+
             tk = nextToken() ;  
 
             if(SHOW_DEBUG) cerr << "Token: " << tokenIdentifier(tk) << endl;
@@ -345,8 +349,8 @@ void Sally::mainLoop() {
                 }
 
             } // End if(integer || string)
-            
-          //  cout << "Token: " << tk.m_text << " Kind: " << tokenKindAsString(tk.m_kind) << endl;
+
+            if(SHOW_DEBUG)  cout << "Token: " << tk.m_text << " Kind: " << tokenKindAsString(tk.m_kind) << endl;
         } // end while
 
     } catch (EOProgram& e) {
@@ -1080,26 +1084,46 @@ void Sally::doNOT(Sally *Sptr) {
 }
 
 
+ 
+//        Sptr->params.pop();
+//      Sptr->params.push(Token(INTEGER, 0));
+
+
+
 
 //////////////////////////////////////////////////////////
 // IFTHEN ELSE Operators                                //
 //////////////////////////////////////////////////////////
 
 void Sally::doIFTHEN(Sally *Sptr) {
-    
+
     Sptr->m_ifCount++;
-   
-    if(SHOW_DEBUG) cerr << "Top in IF: " << tokenBooleanValue(Sptr->params.top()) << endl;
 
-    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
-        << " ELSE: " << Sptr->m_elseCount 
-            << " END: " << Sptr->m_endIfCount << endl;
-    
-    if(!Sptr->m_isSkip) {
-        Sptr->m_isSkip = !tokenBooleanValue(Sptr->params.top());
+    if(tokenBooleanValue(Sptr->params.top())) {
+        return;
+    } else {
+        map<string,SymTabEntry>::iterator it ;
+
+        while( 1 ) {
+
+            Token tk = Sptr->nextToken() ;  
+
+            it = Sptr->symtab.find(tk.m_text) ;
+
+            if(tk.m_text == "ELSE" 
+                    && ((Sptr->m_ifCount - Sptr->m_endIfCount) == 1)) {  
+                it->second.m_dothis(Sptr) ;   
+            } else if(tk.m_text == "ENDIF") {
+                Sptr->m_endIfCount++;
+
+                if(Sptr->m_ifCount == Sptr->m_endIfCount) {
+                    it->second.m_dothis(Sptr);                            
+                    return;
+                }
+            }
+
+        } // end while
     }
-
-    Sptr->params.pop();
 
 }
 
@@ -1108,28 +1132,51 @@ void Sally::doELSE(Sally *Sptr) {
 
     Sptr->m_elseCount++;
 
-    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
-        << " ELSE: " << Sptr->m_elseCount 
-            << " END: " << Sptr->m_endIfCount << endl;
-    
-    if(Sptr->m_isSkip && Sptr->m_elseCount == Sptr->m_ifCount) {
-        Sptr->m_isSkip = false;
+    if(!tokenBooleanValue(Sptr->params.top())) {
+        return;
+    } else {
+        map<string,SymTabEntry>::iterator it ;
+
+        while( 1 ) {
+
+            Token tk = Sptr->nextToken() ;  
+
+            it = Sptr->symtab.find(tk.m_text) ;
+
+            if(tk.m_text == "ENDIF") {
+
+                if(Sptr->m_elseCount == Sptr->m_endIfCount) {
+                    it->second.m_dothis(Sptr);                            
+                    return;
+                }
+            }
+
+        } // end while
     }
+
 }
+
 
 
 void Sally::doENDIF(Sally *Sptr) {
-    Sptr->m_endIfCount++;
 
-    if(SHOW_DEBUG) cerr << "IF: " << Sptr->m_ifCount 
-        << " ELSE: " << Sptr->m_elseCount 
-            << " END: " << Sptr->m_endIfCount << endl;
-
-    if(Sptr->m_endIfCount == Sptr->m_ifCount) {
-        Sptr->m_isSkip = false;
+    if(Sptr->m_elseCount == Sptr->m_endIfCount 
+            || Sptr->m_ifCount == Sptr->m_endIfCount) {
+        Sptr->params.pop();
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 //////////////////////////////////////////////////////////
@@ -1164,6 +1211,10 @@ void Sally::doUNTIL(Sally *Sptr) {
 // Helper Functions                                     //
 //////////////////////////////////////////////////////////
 
+
+bool Sally::checkEmptyOrTrue(Sally *Sptr) {
+    Sptr->hasExecuted.top() || Sptr->hasExecuted.empty();
+}
 
 // This converts a number into a boolean for us. We are using the definition
 // that 0 is false and everything else is true. I'm going to set true equal

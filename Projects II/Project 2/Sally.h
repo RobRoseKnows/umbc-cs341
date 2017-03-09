@@ -187,15 +187,21 @@ private:
     static void doUNTIL(Sally *Sptr);
 
 
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // Member variables for IFTHEN Statements               //
 //////////////////////////////////////////////////////////
 
     int m_ifCount;
     int m_elseCount;
     int m_endIfCount;
-    
+
     bool m_isSkip;
+
+    stack<bool> hasExecuted;
+
+/////////////////////////////////////////////////////////
+// Member variables for DO UNTIL Statements            //
+/////////////////////////////////////////////////////////
 
     bool m_isRecord;
     bool m_isLoop;
@@ -246,6 +252,8 @@ private:
     static bool tokenIsIfKeyword(const Token &tk);
 
     static bool confirmNotNull(const Token &tk);
+
+    static bool checkEmptyOrTrue(Sally *Sptr);
 } ;
 
 #endif
